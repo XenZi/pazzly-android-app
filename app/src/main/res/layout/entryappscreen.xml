@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/pazzly_background">
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="428dp"
+        android:layout_height="358dp"
+        android:src="@drawable/pazzly_logo_monochrome_white_digital"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.529"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/txtUsernameLogin"
+        android:layout_width="380dp"
+        android:layout_height="52dp"
+        android:hint="Username"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView2">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout_editor_absoluteX="42dp"
+            tools:layout_editor_absoluteY="416dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/txtPasswordLogin"
+        android:layout_width="380dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="70dp"
+        android:hint="Password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView2">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout_editor_absoluteX="42dp"
+            tools:layout_editor_absoluteY="416dp"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/loginBtn"
+        android:layout_width="380dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="24dp"
+        android:background="#72BBD3"
+        android:text="Login"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtPasswordLogin" />
+
+    <Button
+        android:id="@+id/registerBtn"
+        android:layout_width="380dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:background="#72BBD3"
+        android:text="Register"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="570dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loginBtn"
+        />
+
+    <Button
+        android:id="@+id/asGuestBtn"
+        android:layout_width="380dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:background="#72BBD3"
+        android:text="Continue as guest"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="570dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/registerBtn"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>
