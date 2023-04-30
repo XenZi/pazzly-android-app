@@ -37,6 +37,15 @@
             android:exported="true">
         </activity>
 
+        <activity
+            android:name="com.example.pazzly.activities.HomeScreenActivity"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name="com.example.pazzly.activities.ProfileActivity"
+            android:exported="true">
+        </activity>
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

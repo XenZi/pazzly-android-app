@@ -18,14 +18,15 @@
         app:layout_constraintEnd_toStartOf="@+id/button2"
         app:layout_constraintStart_toEndOf="@+id/button"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars" />
+
+        android:contentDescription="Picture"
+        android:src="@drawable/_0x50"/>
 
     <Button
         android:id="@+id/button"
         android:layout_width="82dp"
         android:layout_height="40dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="215dp"
         android:layout_marginBottom="304dp"
         android:text="Log out"
@@ -156,6 +157,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+
     <EditText
         android:id="@+id/editTextTextPersonName15"
         android:layout_width="196dp"
@@ -186,7 +188,6 @@
         android:layout_width="82dp"
         android:layout_height="40dp"
 
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="304dp"
         android:text="Back"
