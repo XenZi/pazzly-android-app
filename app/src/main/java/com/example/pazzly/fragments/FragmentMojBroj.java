@@ -5,20 +5,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.annotation.NonNull;
 
 import com.example.pazzly.R;
 
-public class FragmentGameInfo extends Fragment {
+public class FragmentMojBroj extends Fragment {
 
-    public static FragmentGameInfo newInstance() {
-        return new FragmentGameInfo();
+    public static FragmentMojBroj newInstance() {
+        return new FragmentMojBroj();
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fargment_game_info, container, false);
+        return inflater.inflate(R.layout.fragment_moj_broj, container, false);
     }
+
 }
