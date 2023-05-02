@@ -10,10 +10,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.pazzly.R;
+import com.example.pazzly.fragments.FragmentAsocijacije;
 import com.example.pazzly.fragments.FragmentGameInfo;
 import com.example.pazzly.fragments.FragmentKoZnaZna;
 import com.example.pazzly.fragments.FragmentKorakPoKorak;
 import com.example.pazzly.fragments.FragmentMojBroj;
+import com.example.pazzly.fragments.FragmentSkocko;
+import com.example.pazzly.fragments.FragmentSpojnice;
 import com.example.pazzly.utils.FragmentTransition;
 
 import java.util.Timer;
@@ -43,8 +46,31 @@ public class GameTest extends AppCompatActivity {
                             @Override
                             public void run() {
                                 FragmentTransition.to(FragmentKoZnaZna.newInstance(), GameTest.this, false, R.id.downView);
+                                new Timer().schedule(new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        FragmentTransition.to(FragmentSkocko.newInstance(), GameTest.this, false, R.id.downView);
+                                        new Timer().schedule(new TimerTask() {
+                                            @Override
+                                            public void run() {
+                                                FragmentTransition.to(FragmentAsocijacije.newInstance(), GameTest.this, false, R.id.downView);
+                                                new Timer().schedule(new TimerTask() {
+                                                    @Override
+                                                    public void run() {
+                                                        FragmentTransition.to(FragmentSpojnice.newInstance(), GameTest.this, false, R.id.downView);
+                                                    }
+                                                }, SPLASH_TIME_OUT);
+                                            }
+                                        }, SPLASH_TIME_OUT);
+                                    }
+                                }, SPLASH_TIME_OUT);
                             }
                         }, SPLASH_TIME_OUT);
+
+
+
+
+
                     }
                 });
             }
@@ -60,10 +86,13 @@ public class GameTest extends AppCompatActivity {
                     @Override
                     public void run() {
                         FragmentTransition.to(FragmentKoZnaZna.newInstance(), GameTest.this, false, R.id.downView);
+
                         finish();
                     }
                 });
             }
         }, SPLASH_TIME_OUT);
     }
+
+
 }
