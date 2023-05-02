@@ -23,9 +23,14 @@ public class EntryAppScreenActivity extends Activity {
         Toast.makeText(this, "EntryAppScreen", Toast.LENGTH_SHORT).show();
         setContentView(R.layout.entryappscreen);
         Button button = findViewById(R.id.registerBtn);
+        Button logIn=findViewById(R.id.loginBtn);
+
 
         button.setOnClickListener(v -> {startActivity(new Intent(EntryAppScreenActivity.this, RegisterScreenActivity.class));});
+        logIn.setOnClickListener(v -> {startActivity(new Intent(EntryAppScreenActivity.this, HomeScreenActivity.class));});
+
     }
+
 
 
 }
