@@ -200,9 +200,9 @@
 
     <TextView
         android:id="@+id/currentStateOfExpression"
-        android:layout_width="334dp"
-        android:layout_height="33dp"
-        android:layout_marginStart="34dp"
+        android:layout_width="266dp"
+        android:layout_height="37dp"
+        android:layout_marginStart="25dp"
         android:layout_marginBottom="32dp"
         android:background="@drawable/my_border"
         android:paddingHorizontal="6dp"
@@ -252,5 +252,17 @@
         android:textColor="#fff"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stopMojBroj" />
+
+    <Button
+        android:id="@+id/deleteExpressionButton"
+        android:layout_width="93dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="30dp"
+        android:backgroundTint="#D31020"
+        android:text="Delete"
+        android:textColor="#fff"
+        app:layout_constraintBottom_toTopOf="@+id/opOpenBracket"
+        app:layout_constraintStart_toEndOf="@+id/currentStateOfExpression" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

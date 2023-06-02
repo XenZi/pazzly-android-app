@@ -14,20 +14,17 @@ import androidx.fragment.app.Fragment;
 
 import com.example.pazzly.R;
 
-import java.sql.Array;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FragmentMojBroj extends Fragment {
+    private View view;
     private TextView wantedNumberTextView;
     private Button stopButton;
-
     private Handler handler;
-
     private Random random;
     private boolean isUpdating;
+    private AtomicInteger clickCounter;
 
     public static FragmentMojBroj newInstance() {
         return new FragmentMojBroj();
@@ -35,12 +32,33 @@ public class FragmentMojBroj extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_moj_broj, container, false);
-        AtomicInteger i = new AtomicInteger();
+        view = inflater.inflate(R.layout.fragment_moj_broj, container, false);
+        initializeViews();
+        initializeListeners();
+        initializeValues();
+
+        handler = new Handler();
+        random = new Random();
+        isUpdating = true;
+        clickCounter = new AtomicInteger();
+
+        handler.post(updateRunnableForFinalNumber);
+        return view;
+    }
+
+    private void initializeViews() {
         wantedNumberTextView = view.findViewById(R.id.wantedNumber);
+        stopButton = view.findViewById(R.id.stopMojBroj);
+    }
+
+    private void initializeListeners() {
+        stopButton.setOnClickListener(v -> handleStopButtonClick());
+    }
+
+    private void initializeValues() {
         TextView resultsTextView1 = view.findViewById(R.id.resultFromUser1);
         TextView resultsTextView2 = view.findViewById(R.id.resultFromUser2);
-        stopButton = view.findViewById(R.id.stopMojBroj);
+        TextView expressionTextView = view.findViewById(R.id.currentStateOfExpression);
         Button randomNumberButton1 = view.findViewById(R.id.randomNr1);
         Button randomNumberButton2 = view.findViewById(R.id.randomNr2);
         Button randomNumberButton3 = view.findViewById(R.id.randomNr3);
@@ -50,58 +68,55 @@ public class FragmentMojBroj extends Fragment {
 
         resultsTextView1.setText("0");
         resultsTextView2.setText("0");
-
-        handler = new Handler();
-        random = new Random();
-        isUpdating = true;
-
-        Runnable updateRunnableForFinalNumber = new Runnable() {
-            @Override
-            public void run() {
-                if (isUpdating) {
-                    int randomNumber = generateRandomNumber();
-                    wantedNumberTextView.setText(String.valueOf(randomNumber));
-                    handler.postDelayed(this, 30); // Change the interval as desired
-                }
-            }
-        };
-
-        Runnable updateRunnableForNumbers = new Runnable() {
-            @Override
-            public void run() {
-                if (isUpdating) {
-                    int[] randomNumbersGenerated = generateRandomNumbersForExpression();
-                    randomNumberButton1.setText(String.valueOf(randomNumbersGenerated[0]));
-                    randomNumberButton2.setText(String.valueOf(randomNumbersGenerated[1]));
-                    randomNumberButton3.setText(String.valueOf(randomNumbersGenerated[2]));
-                    randomNumberButton4.setText(String.valueOf(randomNumbersGenerated[3]));
-                    randomNumberButton5.setText(String.valueOf(randomNumbersGenerated[4]));
-                    randomNumberButton6.setText(String.valueOf(randomNumbersGenerated[5]));
-                    handler.postDelayed(this, 30); // Change the interval as desired
-                }
-            }
-        };
-
-
-        handler.post(updateRunnableForFinalNumber);
-
-        stopButton.setOnClickListener(v -> {
-            if (i.get() == 0) {
-                handler.removeCallbacks(updateRunnableForFinalNumber);
-                handler.post(updateRunnableForNumbers);
-                i.getAndIncrement();
-            } else if (i.get() == 1) {
-                handler.removeCallbacks(updateRunnableForNumbers);
-                i.getAndIncrement();
-                isUpdating = false;
-            }
-        });
-
-        return view;
+        expressionTextView.setText("");
+        randomNumberButton1.setText("0");
+        randomNumberButton2.setText("0");
+        randomNumberButton3.setText("0");
+        randomNumberButton4.setText("0");
+        randomNumberButton5.setText("0");
+        randomNumberButton6.setText("0");
     }
 
+    private void handleStopButtonClick() {
+        int count = clickCounter.getAndIncrement();
+        if (count == 0) {
+            handler.removeCallbacks(updateRunnableForFinalNumber);
+            handler.post(updateRunnableForNumbers);
+        } else if (count == 1) {
+            handler.removeCallbacks(updateRunnableForNumbers);
+            isUpdating = false;
+        }
+    }
+
+    private Runnable updateRunnableForFinalNumber = new Runnable() {
+        @Override
+        public void run() {
+            if (isUpdating) {
+                int randomNumber = generateRandomNumber();
+                wantedNumberTextView.setText(String.valueOf(randomNumber));
+                handler.postDelayed(this, 30);
+            }
+        }
+    };
+
+    private Runnable updateRunnableForNumbers = new Runnable() {
+        @Override
+        public void run() {
+            if (isUpdating) {
+                int[] randomNumbersGenerated = generateRandomNumbersForExpression();
+                setRandomNumberButtonValue(R.id.randomNr1, randomNumbersGenerated[0]);
+                setRandomNumberButtonValue(R.id.randomNr2, randomNumbersGenerated[1]);
+                setRandomNumberButtonValue(R.id.randomNr3, randomNumbersGenerated[2]);
+                setRandomNumberButtonValue(R.id.randomNr4, randomNumbersGenerated[3]);
+                setRandomNumberButtonValue(R.id.randomNr5, randomNumbersGenerated[4]);
+                setRandomNumberButtonValue(R.id.randomNr6, randomNumbersGenerated[5]);
+                handler.postDelayed(this, 30);
+            }
+        }
+    };
+
     private int generateRandomNumber() {
-        return random.nextInt(1000); // Change the upper bound as per your requirements
+        return random.nextInt(1000);
     }
 
     private int[] generateRandomNumbersForExpression() {
@@ -120,4 +135,8 @@ public class FragmentMojBroj extends Fragment {
         return numbers;
     }
 
+    private void setRandomNumberButtonValue(int buttonId, int value) {
+        Button button = view.findViewById(buttonId);
+        button.setText(String.valueOf(value));
+    }
 }
