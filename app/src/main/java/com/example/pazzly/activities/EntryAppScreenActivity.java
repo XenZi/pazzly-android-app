@@ -24,11 +24,13 @@ public class EntryAppScreenActivity extends Activity {
         setContentView(R.layout.entryappscreen);
         Button button = findViewById(R.id.registerBtn);
         Button logIn=findViewById(R.id.loginBtn);
-
+        Button continueAsGuest = findViewById(R.id.asGuestBtn);
 
         button.setOnClickListener(v -> {startActivity(new Intent(EntryAppScreenActivity.this, RegisterScreenActivity.class));});
         logIn.setOnClickListener(v -> {startActivity(new Intent(EntryAppScreenActivity.this, HomeScreenActivity.class));});
-
+        continueAsGuest.setOnClickListener(v -> {
+            startActivity(new Intent(EntryAppScreenActivity.this, GameTest.class));
+        });
     }
 
 

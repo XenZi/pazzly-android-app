@@ -3,6 +3,7 @@ package com.example.pazzly.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -33,66 +34,10 @@ public class GameTest extends AppCompatActivity {
         FragmentTransition.to(FragmentGameInfo.newInstance(), this, false, R.id.upView);
         FragmentTransition.to(FragmentMojBroj.newInstance(), this, false, R.id.downView);
 
-        final int SPLASH_TIME_OUT = 5000;
-        int i =0;
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                GameTest.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        FragmentTransition.to(FragmentKorakPoKorak.newInstance(), GameTest.this, false, R.id.downView);
-                        new Timer().schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                FragmentTransition.to(FragmentKoZnaZna.newInstance(), GameTest.this, false, R.id.downView);
-                                new Timer().schedule(new TimerTask() {
-                                    @Override
-                                    public void run() {
-                                        FragmentTransition.to(FragmentSkocko.newInstance(), GameTest.this, false, R.id.downView);
-                                        new Timer().schedule(new TimerTask() {
-                                            @Override
-                                            public void run() {
-                                                FragmentTransition.to(FragmentAsocijacije.newInstance(), GameTest.this, false, R.id.downView);
-                                                new Timer().schedule(new TimerTask() {
-                                                    @Override
-                                                    public void run() {
-                                                        FragmentTransition.to(FragmentSpojnice.newInstance(), GameTest.this, false, R.id.downView);
-                                                    }
-                                                }, SPLASH_TIME_OUT);
-                                            }
-                                        }, SPLASH_TIME_OUT);
-                                    }
-                                }, SPLASH_TIME_OUT);
-                            }
-                        }, SPLASH_TIME_OUT);
 
-
-
-
-
-                    }
-                });
-            }
-        }, SPLASH_TIME_OUT);
     }
 
-    public void mapKoZnaZna() {
-        final int SPLASH_TIME_OUT = 10000;
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                GameTest.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        FragmentTransition.to(FragmentKoZnaZna.newInstance(), GameTest.this, false, R.id.downView);
 
-                        finish();
-                    }
-                });
-            }
-        }, SPLASH_TIME_OUT);
-    }
 
 
 }
