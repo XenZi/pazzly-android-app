@@ -25,6 +25,7 @@ public class FragmentMojBroj extends Fragment {
     private Random random;
     private boolean isUpdating;
     private AtomicInteger clickCounter;
+    private TextView currentStateOfExpression;
 
     public static FragmentMojBroj newInstance() {
         return new FragmentMojBroj();
@@ -49,16 +50,16 @@ public class FragmentMojBroj extends Fragment {
     private void initializeViews() {
         wantedNumberTextView = view.findViewById(R.id.wantedNumber);
         stopButton = view.findViewById(R.id.stopMojBroj);
+        currentStateOfExpression = view.findViewById(R.id.currentStateOfExpression);
     }
 
     private void initializeListeners() {
         stopButton.setOnClickListener(v -> handleStopButtonClick());
+        setNumberButtonListeners();
+        setOperationButtonListeners();
     }
 
-    private void initializeValues() {
-        TextView resultsTextView1 = view.findViewById(R.id.resultFromUser1);
-        TextView resultsTextView2 = view.findViewById(R.id.resultFromUser2);
-        TextView expressionTextView = view.findViewById(R.id.currentStateOfExpression);
+    private void setNumberButtonListeners() {
         Button randomNumberButton1 = view.findViewById(R.id.randomNr1);
         Button randomNumberButton2 = view.findViewById(R.id.randomNr2);
         Button randomNumberButton3 = view.findViewById(R.id.randomNr3);
@@ -66,15 +67,37 @@ public class FragmentMojBroj extends Fragment {
         Button randomNumberButton5 = view.findViewById(R.id.randomNr5);
         Button randomNumberButton6 = view.findViewById(R.id.randomNr6);
 
+        randomNumberButton1.setOnClickListener(v -> updateExpressionText(randomNumberButton1.getText().toString()));
+        randomNumberButton2.setOnClickListener(v -> updateExpressionText(randomNumberButton2.getText().toString()));
+        randomNumberButton3.setOnClickListener(v -> updateExpressionText(randomNumberButton3.getText().toString()));
+        randomNumberButton4.setOnClickListener(v -> updateExpressionText(randomNumberButton4.getText().toString()));
+        randomNumberButton5.setOnClickListener(v -> updateExpressionText(randomNumberButton5.getText().toString()));
+        randomNumberButton6.setOnClickListener(v -> updateExpressionText(randomNumberButton6.getText().toString()));
+    }
+
+    private void setOperationButtonListeners() {
+        Button opAdd = view.findViewById(R.id.opAdd);
+        Button opSubtract = view.findViewById(R.id.opSubtract);
+        Button opMultiply = view.findViewById(R.id.opMultiply);
+        Button opDivide = view.findViewById(R.id.opDivide);
+        Button opOpenBracket = view.findViewById(R.id.opOpenBracket);
+        Button opClosedBracket = view.findViewById(R.id.opClosedBracket);
+
+        opAdd.setOnClickListener(v -> updateExpressionText("+"));
+        opSubtract.setOnClickListener(v -> updateExpressionText("-"));
+        opMultiply.setOnClickListener(v -> updateExpressionText("*"));
+        opDivide.setOnClickListener(v -> updateExpressionText("/"));
+        opOpenBracket.setOnClickListener(v -> updateExpressionText("("));
+        opClosedBracket.setOnClickListener(v -> updateExpressionText(")"));
+    }
+
+    private void initializeValues() {
+        TextView resultsTextView1 = view.findViewById(R.id.resultFromUser1);
+        TextView resultsTextView2 = view.findViewById(R.id.resultFromUser2);
+
         resultsTextView1.setText("0");
         resultsTextView2.setText("0");
-        expressionTextView.setText("");
-        randomNumberButton1.setText("0");
-        randomNumberButton2.setText("0");
-        randomNumberButton3.setText("0");
-        randomNumberButton4.setText("0");
-        randomNumberButton5.setText("0");
-        randomNumberButton6.setText("0");
+        currentStateOfExpression.setText("");
     }
 
     private void handleStopButtonClick() {
@@ -138,5 +161,9 @@ public class FragmentMojBroj extends Fragment {
     private void setRandomNumberButtonValue(int buttonId, int value) {
         Button button = view.findViewById(buttonId);
         button.setText(String.valueOf(value));
+    }
+
+    private void updateExpressionText(String text) {
+        currentStateOfExpression.append(text);
     }
 }
