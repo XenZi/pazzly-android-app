@@ -250,7 +250,7 @@ public class FragmentMojBroj extends Fragment {
         return i + 1;
     }
 
-    private void handleSubmit() {
+    public void handleSubmit() {
         String expression = currentStateOfExpression.getText().toString();
         TextView finalResult = view.findViewById(R.id.resultFromUser1);
         JexlEngine jexlEngine = new JexlBuilder().create();
