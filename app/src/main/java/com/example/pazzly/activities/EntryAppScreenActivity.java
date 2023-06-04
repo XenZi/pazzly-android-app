@@ -8,11 +8,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.example.pazzly.MainActivity;
 import com.example.pazzly.R;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class EntryAppScreenActivity extends Activity {
     
@@ -29,7 +25,7 @@ public class EntryAppScreenActivity extends Activity {
         button.setOnClickListener(v -> {startActivity(new Intent(EntryAppScreenActivity.this, RegisterScreenActivity.class));});
         logIn.setOnClickListener(v -> {startActivity(new Intent(EntryAppScreenActivity.this, HomeScreenActivity.class));});
         continueAsGuest.setOnClickListener(v -> {
-            startActivity(new Intent(EntryAppScreenActivity.this, GameTest.class));
+            startActivity(new Intent(EntryAppScreenActivity.this, GameActivity.class));
         });
     }
 

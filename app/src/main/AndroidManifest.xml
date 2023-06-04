@@ -33,7 +33,7 @@
             android:exported="true">
         </activity>
         <activity
-            android:name="com.example.pazzly.activities.GameTest"
+            android:name="com.example.pazzly.activities.GameActivity"
             android:exported="true">
         </activity>
 

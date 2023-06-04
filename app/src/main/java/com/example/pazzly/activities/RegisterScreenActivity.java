@@ -19,6 +19,6 @@ public class RegisterScreenActivity extends Activity {
         setContentView(R.layout.register);
 
         Button button = findViewById(R.id.registerPageRegisterBtn);
-        button.setOnClickListener(v -> startActivity(new Intent(RegisterScreenActivity.this, GameTest.class)));
+        button.setOnClickListener(v -> startActivity(new Intent(RegisterScreenActivity.this, GameActivity.class)));
     }
 }
