@@ -1,5 +1,6 @@
 package com.example.pazzly.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -40,11 +41,20 @@ public class FragmentMojBroj extends Fragment {
     private TextView currentStateOfExpression;
     private List<Button> numberButtons;
     private List<Button> operationButtons;
+    private SubmitCallback submitCallback;
+
 
     public static FragmentMojBroj newInstance() {
         return new FragmentMojBroj();
     }
 
+    public interface SubmitCallback {
+        void onSubmission();
+    }
+
+    public void setSubmitCallback(SubmitCallback callback) {
+        submitCallback = callback;
+    }
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_moj_broj, container, false);
@@ -62,6 +72,8 @@ public class FragmentMojBroj extends Fragment {
         handler.post(updateRunnableForFinalNumber);
         return view;
     }
+
+
 
     private void initializeViews() {
         wantedNumberTextView = view.findViewById(R.id.wantedNumber);
@@ -261,6 +273,9 @@ public class FragmentMojBroj extends Fragment {
             finalResult.setText(String.valueOf(result));
         } catch (Exception e) {
             finalResult.setText("Invalid");
+        }
+        if (submitCallback != null) {
+            submitCallback.onSubmission();
         }
     }
 }

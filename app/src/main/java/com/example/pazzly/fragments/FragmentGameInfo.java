@@ -19,7 +19,7 @@ public class FragmentGameInfo extends Fragment {
     private int gameDuration;
     private TimerCallback timerCallback;
     private TextView secondsLeftTextView;
-
+    private CountDownTimer timer;
     public interface TimerCallback {
         void onTimeTick(int secondsLeft);
         void onTimerFinished();
@@ -50,7 +50,7 @@ public class FragmentGameInfo extends Fragment {
 
     private void startTimer(int duration) {
         long millisecondsDuration = duration * 60 * 1000; // Convert minutes to milliseconds
-        new CountDownTimer(millisecondsDuration, 1000) {
+        timer = new CountDownTimer(millisecondsDuration, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 int secondsLeft = (int) (millisUntilFinished / 1000);
@@ -69,6 +69,12 @@ public class FragmentGameInfo extends Fragment {
                 }
             }
         }.start();
+    }
+
+    public void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+        }
     }
 
 }
