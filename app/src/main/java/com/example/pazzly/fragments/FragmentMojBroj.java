@@ -49,7 +49,7 @@ public class FragmentMojBroj extends Fragment {
     }
 
     public interface SubmitCallback {
-        void onSubmission();
+        void onSubmission(int points);
     }
 
     public void setSubmitCallback(SubmitCallback callback) {
@@ -267,15 +267,31 @@ public class FragmentMojBroj extends Fragment {
         TextView finalResult = view.findViewById(R.id.resultFromUser1);
         JexlEngine jexlEngine = new JexlBuilder().create();
         JexlContext jexlContext = new MapContext();
+        Object result = null;
         try {
             JexlExpression jexlExpression = jexlEngine.createExpression(expression);
-            Object result = jexlExpression.evaluate(jexlContext);
+            result = jexlExpression.evaluate(jexlContext);
             finalResult.setText(String.valueOf(result));
         } catch (Exception e) {
             finalResult.setText("Invalid");
+        } finally {
+            if (submitCallback != null) {
+                if (result != null) {
+                    submitCallback.onSubmission(calculatePoints(Integer.parseInt(result.toString())));
+                    return;
+                }
+                submitCallback.onSubmission(0);
+            }
         }
-        if (submitCallback != null) {
-            submitCallback.onSubmission();
+    }
+
+    private int calculatePoints(Integer passedResult) {
+        if (String.valueOf(passedResult).equals(wantedNumberTextView.toString())) {
+            return 20;
         }
+        if (passedResult == null || passedResult == 0) {
+            return 0;
+        }
+        return 5;
     }
 }

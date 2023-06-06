@@ -17,9 +17,18 @@ import com.example.pazzly.R;
 public class FragmentGameInfo extends Fragment {
 
     private int gameDuration;
+    private View view;
     private TimerCallback timerCallback;
     private TextView secondsLeftTextView;
     private CountDownTimer timer;
+    private TextView firstUserPointsTextView;
+    private int firstUserPoints;
+
+
+    public void setFirstUserPoints(int firstUserPoints) {
+        this.firstUserPoints = firstUserPoints;
+    }
+
     public interface TimerCallback {
         void onTimeTick(int secondsLeft);
         void onTimerFinished();
@@ -31,10 +40,15 @@ public class FragmentGameInfo extends Fragment {
         fragment.gameDuration = gameDuration;
         return fragment;
     }
-
+    public void updatePoints(int points) {
+        firstUserPointsTextView.setText(String.valueOf(points));
+    }
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fargment_game_info, container, false);
+        view =  inflater.inflate(R.layout.fargment_game_info, container, false);
+        firstUserPointsTextView = view.findViewById(R.id.firstUserPoints);
+        firstUserPointsTextView.setText(String.valueOf(firstUserPoints));
+        return view;
     }
 
     @Override

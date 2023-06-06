@@ -1,5 +1,6 @@
 package com.example.pazzly.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -22,10 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GameActivity extends AppCompatActivity implements FragmentGameInfo.TimerCallback, FragmentMojBroj.SubmitCallback {
+public class GameActivity extends AppCompatActivity implements FragmentGameInfo.TimerCallback, FragmentMojBroj.SubmitCallback, FragmentKorakPoKorak.SubmitCallback{
     private Map<Integer, GameFragmentPair> gameFragmentMap = new HashMap<>();
     private boolean gameFinished = false;
-
+    private int firstUserPoints = 0;
     private int currentActiveGame = 0;
     private FragmentGameInfo gameInfoFragment;
     @Override
@@ -41,15 +42,27 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
         initializeGameInfoFragment();
     }
     private void initializeGameInfoFragment() {
+        if (gameFragmentMap.get(currentActiveGame) == null) {
+            startActivity(new Intent(GameActivity.this, HomeScreenActivity.class));
+            return;
+        }
         gameInfoFragment = FragmentGameInfo.newInstance(gameFragmentMap.get(currentActiveGame).getGame().getDurationPerRound());
         gameInfoFragment.setTimerCallback(this); // Set the callback in the activity
         FragmentTransition.to(gameInfoFragment, this, false, R.id.upView);
+        gameInfoFragment.setFirstUserPoints(firstUserPoints);
     }
 
     private void initializeGameFragment() {
+        if (gameFragmentMap.get(currentActiveGame) == null) {
+            startActivity(new Intent(GameActivity.this, HomeScreenActivity.class));
+            return;
+        }
         Fragment fragmentToInitialize = gameFragmentMap.get(currentActiveGame).getFragment();
         if (gameFragmentMap.get(currentActiveGame).getFragment() instanceof FragmentMojBroj) {
             ((FragmentMojBroj) gameFragmentMap.get(currentActiveGame).getFragment()).setSubmitCallback(this); // Set the callback in the activity
+        }
+        if (gameFragmentMap.get(currentActiveGame).getFragment() instanceof FragmentKorakPoKorak) {
+            ((FragmentKorakPoKorak) gameFragmentMap.get(currentActiveGame).getFragment()).setSubmitCallback(this);
         }
         if (gameFragmentMap.get(currentActiveGame).getGame().getRounds() > 1 && gameFragmentMap.get(currentActiveGame).getGame().getCurrentRound() > 1) {
             switch (currentActiveGame) {
@@ -57,17 +70,21 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
                     fragmentToInitialize = FragmentMojBroj.newInstance();
                     ((FragmentMojBroj) fragmentToInitialize).setSubmitCallback(this);
                     break;
+                case 1:
+                    fragmentToInitialize = FragmentKorakPoKorak.newInstance();
+                    ((FragmentKorakPoKorak) fragmentToInitialize).setSubmitCallback(this);
                 default:
                     break;
             }
         }
         FragmentTransition.to(fragmentToInitialize, this, false, R.id.downView);
+        gameFinished = false;
     }
 
     private void initializeGamesIntoGameList() {
         MojBroj mojBroj = new MojBroj(2, 20, 0, 1);
         Fragment mojBrojFragment = FragmentMojBroj.newInstance();
-        KorakPoKorak korakPoKorak = new KorakPoKorak(1, 20, 0, 10);
+        KorakPoKorak korakPoKorak = new KorakPoKorak(2, 20, 0, 10);
         FragmentKorakPoKorak fragmentKorakPoKorak = FragmentKorakPoKorak.newInstance();
         GameFragmentPair gameFragmentPairMojBroj = new GameFragmentPair(mojBroj, mojBrojFragment);
         GameFragmentPair gameFragmentPairKorakPoKorak = new GameFragmentPair(korakPoKorak, fragmentKorakPoKorak);
@@ -96,22 +113,39 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
                     Game currentGame = gameFragmentMap.get(currentActiveGame).getGame();
                     if (currentGame.getCurrentRound() < currentGame.getRounds()) {
                         currentGame.setCurrentRound(currentGame.getCurrentRound() + 1);
-                        gameFinished = false;
                     } else {
                         currentActiveGame++;
                     }
                     initializeFragments();
+                    gameFinished = false;
+                }
+                break;
+            }
+            case 1: {
+                Log.d("CURR-GAME-ACTIVE", String.valueOf(currentActiveGame));
+                FragmentKorakPoKorak fragmentKorakPoKorak = (FragmentKorakPoKorak) getSupportFragmentManager().findFragmentById(R.id.downView);
+                if (fragmentKorakPoKorak != null) {
+                    fragmentKorakPoKorak.handleSubmit();
+                    Game currentGame = gameFragmentMap.get(currentActiveGame).getGame();
+                    if (currentGame.getCurrentRound() < currentGame.getRounds()) {
+                        currentGame.setCurrentRound(currentGame.getCurrentRound() + 1);
+                    } else {
+                        currentActiveGame++;
+                    }
+                    initializeFragments();
+                    gameFinished = false;
                 }
                 break;
             }
             default: {
+                startActivity(new Intent(GameActivity.this, HomeScreenActivity.class));
                 break;
             }
         }
     }
 
     @Override
-    public void onSubmission() {
+    public void onSubmission(int points) {
         if (!gameFinished) {
             Log.d("TEST GAME FINISHED", "TEST");
             gameFinished = true;
@@ -119,6 +153,8 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
             if (fragmentGameInfo != null) {
                 fragmentGameInfo.stopTimer();
             }
+            firstUserPoints += points;
+            fragmentGameInfo.updatePoints(firstUserPoints);
             finishGame();
         }
     }
