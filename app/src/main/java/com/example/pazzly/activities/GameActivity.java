@@ -12,6 +12,7 @@ import com.example.pazzly.R;
 import com.example.pazzly.domain.entity.Game;
 import com.example.pazzly.domain.entity.MojBroj;
 import com.example.pazzly.domain.model.GameFragmentPair;
+import com.example.pazzly.fragments.FragmentAsocijacije;
 import com.example.pazzly.fragments.FragmentGameInfo;
 import com.example.pazzly.fragments.FragmentMojBroj;
 import com.example.pazzly.utils.FragmentTransition;
@@ -46,8 +47,13 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
     }
 
     private void initializeGamesIntoGameList() {
+//        MojBroj mojBroj = new MojBroj(1, 20, 0, 1);
+//        Fragment mojBrojFragment = FragmentMojBroj.newInstance();
+//        GameFragmentPair gameFragmentPairMojBroj = new GameFragmentPair(mojBroj, mojBrojFragment);
+//        gameFragmentMap.put(0, gameFragmentPairMojBroj);
+
         MojBroj mojBroj = new MojBroj(1, 20, 0, 1);
-        Fragment mojBrojFragment = FragmentMojBroj.newInstance();
+        Fragment mojBrojFragment = FragmentAsocijacije.newInstance();
         GameFragmentPair gameFragmentPairMojBroj = new GameFragmentPair(mojBroj, mojBrojFragment);
         gameFragmentMap.put(0, gameFragmentPairMojBroj);
     }
