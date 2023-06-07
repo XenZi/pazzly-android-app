@@ -1,5 +1,6 @@
 package com.example.pazzly.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -40,11 +41,20 @@ public class FragmentMojBroj extends Fragment {
     private TextView currentStateOfExpression;
     private List<Button> numberButtons;
     private List<Button> operationButtons;
+    private SubmitCallback submitCallback;
+
 
     public static FragmentMojBroj newInstance() {
         return new FragmentMojBroj();
     }
 
+    public interface SubmitCallback {
+        void onSubmission(int points);
+    }
+
+    public void setSubmitCallback(SubmitCallback callback) {
+        submitCallback = callback;
+    }
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_moj_broj, container, false);
@@ -62,6 +72,8 @@ public class FragmentMojBroj extends Fragment {
         handler.post(updateRunnableForFinalNumber);
         return view;
     }
+
+
 
     private void initializeViews() {
         wantedNumberTextView = view.findViewById(R.id.wantedNumber);
@@ -255,12 +267,31 @@ public class FragmentMojBroj extends Fragment {
         TextView finalResult = view.findViewById(R.id.resultFromUser1);
         JexlEngine jexlEngine = new JexlBuilder().create();
         JexlContext jexlContext = new MapContext();
+        Object result = null;
         try {
             JexlExpression jexlExpression = jexlEngine.createExpression(expression);
-            Object result = jexlExpression.evaluate(jexlContext);
+            result = jexlExpression.evaluate(jexlContext);
             finalResult.setText(String.valueOf(result));
         } catch (Exception e) {
             finalResult.setText("Invalid");
+        } finally {
+            if (submitCallback != null) {
+                if (result != null) {
+                    submitCallback.onSubmission(calculatePoints(Integer.parseInt(result.toString())));
+                    return;
+                }
+                submitCallback.onSubmission(0);
+            }
         }
+    }
+
+    private int calculatePoints(Integer passedResult) {
+        if (String.valueOf(passedResult).equals(wantedNumberTextView.toString())) {
+            return 20;
+        }
+        if (passedResult == null || passedResult == 0) {
+            return 0;
+        }
+        return 5;
     }
 }

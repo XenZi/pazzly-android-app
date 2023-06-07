@@ -382,6 +382,7 @@ public class FragmentAsocijacije extends Fragment {
                     aEditText.setText(aArray.get(4).toString());
                     aEditText.setEnabled(false);
                     int points=calculateRowAPoints(btnColAList);
+                    callbackAsocijacije.onSubmissionAsocijacije(points);
                     Log.d("POENI U KLASI", String.valueOf(points));
 
                     columnAValues(aArray);
@@ -394,6 +395,7 @@ public class FragmentAsocijacije extends Fragment {
                     bEditText.setText(bArray.get(4).toString());
                     bEditText.setEnabled(false);
                     int points=calculateRowBPoints(btnColBList);
+                    callbackAsocijacije.onSubmissionAsocijacije(points);
                     columnBValues(bArray);
                     anyEditTextChanged = true;
                 }
@@ -402,6 +404,7 @@ public class FragmentAsocijacije extends Fragment {
                     cEditText.setText(cArray.get(4).toString());
                     cEditText.setEnabled(false);
                     int points=calculateRowCPoints(btnColCList);
+                    callbackAsocijacije.onSubmissionAsocijacije(points);
                     columnCValues(cArray);
                     anyEditTextChanged = true;
                 }
@@ -410,6 +413,7 @@ public class FragmentAsocijacije extends Fragment {
                     dEditText.setText(dArray.get(4).toString());
                     dEditText.setEnabled(false);
                     int points=calculateRowDPoints(btnColDList);
+                    callbackAsocijacije.onSubmissionAsocijacije(points);
                     columnDValues(dArray);
                     anyEditTextChanged = true;
                 }
@@ -422,7 +426,7 @@ public class FragmentAsocijacije extends Fragment {
                     fEditText.setText(konacno);
                     fEditText.setEnabled(false);
                     int points=calculateRowAPoints(btnColAList)+calculateRowBPoints(btnColBList)+calculateRowCPoints(btnColCList)+calculateRowDPoints(btnColDList)+7;
-                    if(textA.length()==1){
+                    if(textA.length()==0){
                         Log.d("DALIULAZI", "DA ULAZI");
                         points=points+1;
                     }
@@ -435,6 +439,7 @@ public class FragmentAsocijacije extends Fragment {
                     if(textD.length()==0){
                         points=points+1;
                     }
+                    callbackAsocijacije.onSubmissionAsocijacije(points);
                     Log.d("KONACNIPOENI", String.valueOf(points));
 
 

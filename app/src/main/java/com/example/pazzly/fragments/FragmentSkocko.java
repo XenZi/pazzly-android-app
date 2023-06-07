@@ -71,6 +71,16 @@ public class FragmentSkocko extends Fragment {
 
     List<Integer>generatedAnswer=new ArrayList<>();
     List<Integer>submittedAnswer= new ArrayList<>();
+
+    private FragmentSkocko.SubmitCallbackSkocko callbackSkocko;
+    public interface SubmitCallbackSkocko {
+        void onSubmissionSkocko(int points);
+    }
+
+    public void setSubmitCallbackSkocko(FragmentSkocko.SubmitCallbackSkocko callback) {
+        callbackSkocko = callback;
+    }
+
     public static FragmentSkocko newInstance() {
         return new FragmentSkocko();
     }
@@ -84,6 +94,7 @@ public class FragmentSkocko extends Fragment {
         initializeListeners();
         initializeRezults();
         generateRandomAnswer();
+
 
 
 
@@ -233,6 +244,7 @@ public class FragmentSkocko extends Fragment {
                 if (rowCounter==6){
                     rowCounter=0;
                 }
+
             });
             symbolIndex++;
         }
@@ -264,6 +276,7 @@ public class FragmentSkocko extends Fragment {
             }
 
         }
+
 //
 
 
@@ -277,6 +290,7 @@ public class FragmentSkocko extends Fragment {
         for(int i=red;i<yellow+1;i++){
             allRezList.get(resultRow).get(i).setBackgroundColor(Color.YELLOW);
         }
+        calculatePoints();
 
         red=0;
         yellow=0;
@@ -295,6 +309,27 @@ public class FragmentSkocko extends Fragment {
         generatedAnswer.add(2);
         generatedAnswer.add(3);
         generatedAnswer.add(4);
+    }
+
+    public void calculatePoints(){
+        int points = 0;
+        if (red == 4) {
+            switch (rowCounter) {
+                case 1:
+                case 2:
+                    points = 20;
+                    break;
+                case 3:
+                case 4:
+                    points = 15;
+                    break;
+                case 5:
+                case 6:
+                    points = 10;
+                    break;
+            }
+        }
+        callbackSkocko.onSubmissionSkocko(points);
     }
 
 }

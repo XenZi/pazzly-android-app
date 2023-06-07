@@ -17,8 +17,17 @@ import com.example.pazzly.R;
 public class FragmentGameInfo extends Fragment {
 
     private int gameDuration;
+    private View view;
     private TimerCallback timerCallback;
     private TextView secondsLeftTextView;
+    private CountDownTimer timer;
+    private TextView firstUserPointsTextView;
+    private int firstUserPoints;
+
+
+    public void setFirstUserPoints(int firstUserPoints) {
+        this.firstUserPoints = firstUserPoints;
+    }
 
     public interface TimerCallback {
         void onTimeTick(int secondsLeft);
@@ -31,10 +40,15 @@ public class FragmentGameInfo extends Fragment {
         fragment.gameDuration = gameDuration;
         return fragment;
     }
-
+    public void updatePoints(int points) {
+        firstUserPointsTextView.setText(String.valueOf(points));
+    }
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fargment_game_info, container, false);
+        view =  inflater.inflate(R.layout.fargment_game_info, container, false);
+        firstUserPointsTextView = view.findViewById(R.id.firstUserPoints);
+        firstUserPointsTextView.setText(String.valueOf(firstUserPoints));
+        return view;
     }
 
     @Override
@@ -50,7 +64,7 @@ public class FragmentGameInfo extends Fragment {
 
     private void startTimer(int duration) {
         long millisecondsDuration = duration * 60 * 1000; // Convert minutes to milliseconds
-        new CountDownTimer(millisecondsDuration, 1000) {
+        timer = new CountDownTimer(millisecondsDuration, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 int secondsLeft = (int) (millisUntilFinished / 1000);
@@ -69,6 +83,12 @@ public class FragmentGameInfo extends Fragment {
                 }
             }
         }.start();
+    }
+
+    public void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+        }
     }
 
 }
