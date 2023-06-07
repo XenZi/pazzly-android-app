@@ -293,8 +293,8 @@ public class FragmentSkocko extends Fragment {
 //        }
         generatedAnswer.add(1);
         generatedAnswer.add(2);
-        generatedAnswer.add(2);
-        generatedAnswer.add(1);
+        generatedAnswer.add(3);
+        generatedAnswer.add(4);
     }
 
 }

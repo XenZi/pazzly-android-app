@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GameActivity extends AppCompatActivity implements FragmentGameInfo.TimerCallback {
+public class GameActivity extends AppCompatActivity implements FragmentGameInfo.TimerCallback,FragmentAsocijacije.SubmitCallbackAsocijacije {
     private Map<Integer, GameFragmentPair> gameFragmentMap = new HashMap<>();
     private int currentActiveGame = 0;
     @Override
@@ -54,7 +54,7 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
 //        gameFragmentMap.put(0, gameFragmentPairMojBroj);
 
         MojBroj mojBroj = new MojBroj(1, 20, 0, 10);
-        Fragment mojBrojFragment = FragmentSkocko.newInstance();
+        Fragment mojBrojFragment = FragmentAsocijacije.newInstance();
         GameFragmentPair gameFragmentPairMojBroj = new GameFragmentPair(mojBroj, mojBrojFragment);
         gameFragmentMap.put(0, gameFragmentPairMojBroj);
     }
@@ -82,5 +82,10 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
                 }
             }
         }
+    }
+
+    @Override
+    public void onSubmissionAsocijacije(int points) {
+
     }
 }

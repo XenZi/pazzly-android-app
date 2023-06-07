@@ -43,6 +43,15 @@ public class FragmentAsocijacije extends Fragment {
     private ArrayList<Button> btnColBList=new ArrayList<>();
     private ArrayList<Button> btnColCList=new ArrayList<>();
     private ArrayList<Button> btnColDList=new ArrayList<>();
+
+    private SubmitCallbackAsocijacije callbackAsocijacije;
+    public interface SubmitCallbackAsocijacije {
+        void onSubmissionAsocijacije(int points);
+    }
+
+    public void setSubmitCallbackAsocijacije(SubmitCallbackAsocijacije callback) {
+        callbackAsocijacije = callback;
+    }
     public static FragmentAsocijacije newInstance() {
         return new FragmentAsocijacije();
     }
@@ -369,19 +378,22 @@ public class FragmentAsocijacije extends Fragment {
                 boolean anyEditTextChanged = false;
 
                 if (aArray.size() > 4 && enteredValueA.equals(aArray.get(4).toString())) {
+
                     aEditText.setText(aArray.get(4).toString());
                     aEditText.setEnabled(false);
+                    int points=calculateRowAPoints(btnColAList);
+                    Log.d("POENI U KLASI", String.valueOf(points));
 
                     columnAValues(aArray);
-
-
-
                     anyEditTextChanged = true;
+
+
                 }
 
                 if (bArray.size() > 4 && enteredValueB.equals(bArray.get(4).toString())) {
                     bEditText.setText(bArray.get(4).toString());
                     bEditText.setEnabled(false);
+                    int points=calculateRowBPoints(btnColBList);
                     columnBValues(bArray);
                     anyEditTextChanged = true;
                 }
@@ -389,6 +401,7 @@ public class FragmentAsocijacije extends Fragment {
                 if (cArray.size() > 4 && enteredValueC.equals(cArray.get(4).toString())) {
                     cEditText.setText(cArray.get(4).toString());
                     cEditText.setEnabled(false);
+                    int points=calculateRowCPoints(btnColCList);
                     columnCValues(cArray);
                     anyEditTextChanged = true;
                 }
@@ -396,13 +409,34 @@ public class FragmentAsocijacije extends Fragment {
                 if (dArray.size() > 4 && enteredValueD.equals(dArray.get(4).toString())) {
                     dEditText.setText(dArray.get(4).toString());
                     dEditText.setEnabled(false);
+                    int points=calculateRowDPoints(btnColDList);
                     columnDValues(dArray);
                     anyEditTextChanged = true;
                 }
 
                 if (enteredValueF.equals(konacno)) {
+                    String textA=aEditText.getText().toString();
+                    String textB=bEditText.getText().toString();
+                    String textC=cEditText.getText().toString();
+                    String textD=dEditText.getText().toString();
                     fEditText.setText(konacno);
                     fEditText.setEnabled(false);
+                    int points=calculateRowAPoints(btnColAList)+calculateRowBPoints(btnColBList)+calculateRowCPoints(btnColCList)+calculateRowDPoints(btnColDList)+7;
+                    if(textA.length()==1){
+                        Log.d("DALIULAZI", "DA ULAZI");
+                        points=points+1;
+                    }
+                    if(textB.length()==0){
+                        points=points+1;
+                    }
+                    if(textC.length()==0){
+                        points=points+1;
+                    }
+                    if(textD.length()==0){
+                        points=points+1;
+                    }
+                    Log.d("KONACNIPOENI", String.valueOf(points));
+
 
                     columnAValues(aArray);
                     columnBValues(bArray);
@@ -429,4 +463,52 @@ public class FragmentAsocijacije extends Fragment {
 
 
     };
+    public int calculateRowAPoints(ArrayList<Button> btnColAList){
+        int pointsA=6;
+        for (Button button : btnColAList) {
+            String buttonText = button.getText().toString();
+            if (buttonText.length() > 2) {
+                pointsA=pointsA-1;
+            }
+        }
+        Log.d("POINTSA", String.valueOf(pointsA));
+        return pointsA;
+
+    }
+    public int calculateRowBPoints(ArrayList<Button> btnColBList){
+        int pointsB=6;
+        for (Button button : btnColAList) {
+            String buttonText = button.getText().toString();
+            if (buttonText.length() > 2) {
+                pointsB=pointsB-1;
+            }
+        }
+        Log.d("POINTSA", String.valueOf(pointsB));
+        return pointsB;
+
+    }
+    public int calculateRowCPoints(ArrayList<Button> btnColCList){
+        int pointsC=6;
+        for (Button button : btnColAList) {
+            String buttonText = button.getText().toString();
+            if (buttonText.length() > 2) {
+                pointsC=pointsC-1;
+            }
+        }
+        Log.d("POINTSA", String.valueOf(pointsC));
+        return pointsC;
+
+    }
+    public int calculateRowDPoints(ArrayList<Button> btnColDList){
+        int pointsD=6;
+        for (Button button : btnColAList) {
+            String buttonText = button.getText().toString();
+            if (buttonText.length() > 2) {
+                pointsD=pointsD-1;
+            }
+        }
+        Log.d("POINTSA", String.valueOf(pointsD));
+        return pointsD;
+
+    }
 }
