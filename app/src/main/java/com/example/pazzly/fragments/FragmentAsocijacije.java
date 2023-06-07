@@ -140,6 +140,64 @@ public class FragmentAsocijacije extends Fragment {
 
     };
 
+    public void columnAValues(List<Object> aArray){
+
+        a1Button.setText(aArray.get(0).toString());
+        a2Button.setText(aArray.get(1).toString());
+        a3Button.setText(aArray.get(2).toString());
+        a4Button.setText(aArray.get(3).toString());
+        aEditText.setText(aArray.get(4).toString());
+        a1Button.setEnabled(false);
+        a2Button.setEnabled(false);
+        a3Button.setEnabled(false);
+        a4Button.setEnabled(false);
+        aEditText.setEnabled(false);
+
+    }
+
+    public void columnBValues(List<Object> bArray){
+
+        b1Button.setText(bArray.get(0).toString());
+        b2Button.setText(bArray.get(1).toString());
+        b3Button.setText(bArray.get(2).toString());
+        b4Button.setText(bArray.get(3).toString());
+        bEditText.setText(bArray.get(4).toString());
+        b1Button.setEnabled(false);
+        b2Button.setEnabled(false);
+        b3Button.setEnabled(false);
+        b4Button.setEnabled(false);
+        bEditText.setEnabled(false);
+
+    }
+    public void columnCValues(List<Object> cArray){
+
+        c1Button.setText(cArray.get(0).toString());
+        c2Button.setText(cArray.get(1).toString());
+        c3Button.setText(cArray.get(2).toString());
+        c4Button.setText(cArray.get(3).toString());
+        cEditText.setText(cArray.get(4).toString());
+        c1Button.setEnabled(false);
+        c2Button.setEnabled(false);
+        c3Button.setEnabled(false);
+        c4Button.setEnabled(false);
+        cEditText.setEnabled(false);
+
+    }
+    public void columnDValues(List<Object> dArray){
+
+        d1Button.setText(dArray.get(0).toString());
+        d2Button.setText(dArray.get(1).toString());
+        d3Button.setText(dArray.get(2).toString());
+        d4Button.setText(dArray.get(3).toString());
+        dEditText.setText(dArray.get(4).toString());
+        d1Button.setEnabled(false);
+        d2Button.setEnabled(false);
+        d3Button.setEnabled(false);
+        d4Button.setEnabled(false);
+        dEditText.setEnabled(false);
+
+    }
+
     public void buttonsNameMapping(List<Object> aArray, List<Object> bArray, List<Object> cArray, List<Object> dArray, String konacno){
 
         a1Button.setText(aArray.get(0).toString());
@@ -313,30 +371,45 @@ public class FragmentAsocijacije extends Fragment {
                 if (aArray.size() > 4 && enteredValueA.equals(aArray.get(4).toString())) {
                     aEditText.setText(aArray.get(4).toString());
                     aEditText.setEnabled(false);
+
+                    columnAValues(aArray);
+
+
+
                     anyEditTextChanged = true;
                 }
 
                 if (bArray.size() > 4 && enteredValueB.equals(bArray.get(4).toString())) {
                     bEditText.setText(bArray.get(4).toString());
                     bEditText.setEnabled(false);
+                    columnBValues(bArray);
                     anyEditTextChanged = true;
                 }
 
                 if (cArray.size() > 4 && enteredValueC.equals(cArray.get(4).toString())) {
                     cEditText.setText(cArray.get(4).toString());
                     cEditText.setEnabled(false);
+                    columnCValues(cArray);
                     anyEditTextChanged = true;
                 }
 
                 if (dArray.size() > 4 && enteredValueD.equals(dArray.get(4).toString())) {
                     dEditText.setText(dArray.get(4).toString());
                     dEditText.setEnabled(false);
+                    columnDValues(dArray);
                     anyEditTextChanged = true;
                 }
 
                 if (enteredValueF.equals(konacno)) {
                     fEditText.setText(konacno);
                     fEditText.setEnabled(false);
+
+                    columnAValues(aArray);
+                    columnBValues(bArray);
+                    columnCValues(cArray);
+                    columnDValues(dArray);
+
+
                     anyEditTextChanged = true;
                 }
 
