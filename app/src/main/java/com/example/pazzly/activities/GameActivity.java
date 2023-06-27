@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GameActivity extends AppCompatActivity implements FragmentGameInfo.TimerCallback, FragmentMojBroj.SubmitCallback, FragmentKorakPoKorak.SubmitCallback{
+public class GameActivity extends AppCompatActivity implements FragmentGameInfo.TimerCallback, FragmentMojBroj.SubmitCallback, FragmentKorakPoKorak.SubmitCallback {
     private Map<Integer, GameFragmentPair> gameFragmentMap = new HashMap<>();
     private boolean gameFinished = false;
     private int firstUserPoints = 0;
@@ -84,8 +84,10 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
     private void initializeGamesIntoGameList() {
         MojBroj mojBroj = new MojBroj(2, 20, 0, 1);
         Fragment mojBrojFragment = FragmentMojBroj.newInstance();
+
         KorakPoKorak korakPoKorak = new KorakPoKorak(2, 20, 0, 10);
         FragmentKorakPoKorak fragmentKorakPoKorak = FragmentKorakPoKorak.newInstance();
+
         GameFragmentPair gameFragmentPairMojBroj = new GameFragmentPair(mojBroj, mojBrojFragment);
         GameFragmentPair gameFragmentPairKorakPoKorak = new GameFragmentPair(korakPoKorak, fragmentKorakPoKorak);
         gameFragmentMap.put(0, gameFragmentPairMojBroj);
@@ -147,7 +149,6 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
     @Override
     public void onSubmission(int points) {
         if (!gameFinished) {
-            Log.d("TEST GAME FINISHED", "TEST");
             gameFinished = true;
             FragmentGameInfo fragmentGameInfo = (FragmentGameInfo) getSupportFragmentManager().findFragmentById(R.id.upView);
             if (fragmentGameInfo != null) {

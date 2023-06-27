@@ -107,7 +107,7 @@ public class FragmentKorakPoKorak extends Fragment {
                     stopUpdatingSteps();
                     return;
                 }
-                handler.postDelayed(this, 3000);
+                handler.postDelayed(this, 10000);
             }
         };
         handler.post(runnable);
