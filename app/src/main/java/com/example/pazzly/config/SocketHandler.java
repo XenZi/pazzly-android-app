@@ -14,7 +14,7 @@ public class SocketHandler {
 
     public static void setSocket(){
         try {
-            socket = IO.socket("http://192.168.1.70:3000");
+            socket = IO.socket("http://192.168.0.12:3001");
         }catch (Exception e){
             Log.d("SOCKET ERROR", e.getMessage().toString());
         }
