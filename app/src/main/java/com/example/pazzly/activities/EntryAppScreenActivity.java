@@ -2,9 +2,12 @@ package com.example.pazzly.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -39,6 +42,7 @@ public class EntryAppScreenActivity extends Activity {
     private Button continueAsGuest;
     private Button registerBtn;
     private Socket socket;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstance) {
         super.onCreate(savedInstance);
@@ -60,12 +64,14 @@ public class EntryAppScreenActivity extends Activity {
         });
         firestore = FirebaseFirestore.getInstance();
         initializeViewElements();
+
         this.registerBtn.setOnClickListener(v -> {startActivity(new Intent(EntryAppScreenActivity.this, RegisterScreenActivity.class));});
         this.loginBtn.setOnClickListener(v -> proceedLogin());
         this.continueAsGuest.setOnClickListener(v -> {
             startActivity(new Intent(EntryAppScreenActivity.this, GameActivity.class));
         });
     }
+
 
     private void initializeViewElements() {
         this.txtUsernameLogin = findViewById(R.id.txtUsernameLogin);
@@ -97,7 +103,7 @@ public class EntryAppScreenActivity extends Activity {
                         String email = documentSnapshot.getString("email");
                         Integer tokens = Integer.valueOf(Math.toIntExact(documentSnapshot.getLong("tokens")));
                         Integer stars = Integer.valueOf(Math.toIntExact(documentSnapshot.getLong("stars")));
-                        User user = new User(id, username, password, email, tokens, stars);
+                        User user = new User(id, username, email, password, tokens, stars);
                         HomeScreenActivity.loggedUser = user;
                         startActivity(new Intent(EntryAppScreenActivity.this, HomeScreenActivity.class));
                     } else {
