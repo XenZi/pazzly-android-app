@@ -15,12 +15,14 @@ import com.example.pazzly.domain.entity.Game;
 import com.example.pazzly.domain.entity.KorakPoKorak;
 import com.example.pazzly.domain.entity.MojBroj;
 import com.example.pazzly.domain.entity.Skocko;
+import com.example.pazzly.domain.entity.Spojnice;
 import com.example.pazzly.domain.model.GameFragmentPair;
 import com.example.pazzly.fragments.FragmentAsocijacije;
 import com.example.pazzly.fragments.FragmentGameInfo;
 import com.example.pazzly.fragments.FragmentKorakPoKorak;
 import com.example.pazzly.fragments.FragmentMojBroj;
 import com.example.pazzly.fragments.FragmentSkocko;
+import com.example.pazzly.fragments.FragmentSpojnice;
 import com.example.pazzly.utils.FragmentTransition;
 
 import java.util.HashMap;
@@ -113,11 +115,15 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
         Skocko skocko= new Skocko(1,20,0,1);
         FragmentSkocko fragmentSkocko=FragmentSkocko.newInstance();
         GameFragmentPair gameFragmentPairSkocko=new GameFragmentPair(skocko,fragmentSkocko);
+        Spojnice spojnice= new Spojnice(1,20,0,5);
+        FragmentSpojnice fragmentSpojnice=FragmentSpojnice.newInstance();
+        GameFragmentPair gameFragmentPairSpojnice=new GameFragmentPair(spojnice,fragmentSpojnice);
 
         gameFragmentMap.put(0,gameFragmentPairAsocijacije);
         gameFragmentMap.put(1,gameFragmentPairSkocko);
         gameFragmentMap.put(2, gameFragmentPairKorakPoKorak);
         gameFragmentMap.put(3, gameFragmentPairMojBroj);
+        gameFragmentMap.put(4,gameFragmentPairSpojnice);
     }
 
     @Override
@@ -201,6 +207,24 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
                 break;
 
             }
+            case 4:{
+
+                Log.d("CURR-GAME-ACTIVE", String.valueOf(currentActiveGame));
+                FragmentSpojnice fragmentSpojnice = (FragmentSpojnice) getSupportFragmentManager().findFragmentById(R.id.downView);
+                if (fragmentSpojnice != null) {
+
+                    Game currentGame = gameFragmentMap.get(currentActiveGame).getGame();
+                    if (currentGame.getCurrentRound() < currentGame.getRounds()) {
+                        currentGame.setCurrentRound(currentGame.getCurrentRound() + 1);
+                    } else {
+                        currentActiveGame++;
+                    }
+                    initializeFragments();
+                    gameFinished = false;
+                }
+                break;
+
+            }
             default: {
                 startActivity(new Intent(GameActivity.this, HomeScreenActivity.class));
                 break;
@@ -212,6 +236,7 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
     public void onSubmissionAsocijacije(int points) {
         FragmentGameInfo fragmentGameInfo = (FragmentGameInfo) getSupportFragmentManager().findFragmentById(R.id.upView);
         firstUserPoints += points;
+        Log.d("FRSTJUZERS",String.valueOf(firstUserPoints));
         fragmentGameInfo.updatePoints(firstUserPoints);
         if (points>5){
             if (fragmentGameInfo != null) {

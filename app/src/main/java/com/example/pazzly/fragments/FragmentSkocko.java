@@ -251,43 +251,43 @@ public class FragmentSkocko extends Fragment {
 
     }
 
-    public void checkRow(){
-        List<Integer>copyGenerated=new ArrayList<>(generatedAnswer);
+    public void checkRow() {
+        List<Integer> copyGenerated = new ArrayList<>(generatedAnswer);
+        List<Integer> copySubmitted = new ArrayList<>(submittedAnswer);
+        red = 0;
+        yellow = 0;
 
-        for(int i=0;i<4;i++){
-            if (submittedAnswer.get(i)==copyGenerated.get(i)){
+        // Check for exact matches (reds)
+        for (int i = 0; i < 4; i++) {
+            if (copySubmitted.get(i).equals(copyGenerated.get(i))) {
                 red++;
-                Log.d("KOPIGENERATED", copyGenerated.get(i).toString());
-                Log.d("SABMITED", submittedAnswer.get(i).toString());
-                copyGenerated.set(i,null);
-                submittedAnswer.set(i,null);
-
-
+                copyGenerated.set(i, null);
+                copySubmitted.set(i, null);
             }
-
         }
 
-        for(int i=0;i<4;i++){
-            if (submittedAnswer.get(i)!=null &&copyGenerated.contains(submittedAnswer.get(i))){
+        // Check for partial matches (yellows)
+        for (int i = 0; i < 4; i++) {
+            if (copySubmitted.get(i) != null && copyGenerated.contains(copySubmitted.get(i))) {
                 yellow++;
-                copyGenerated.set(i,null);
-                submittedAnswer.set(i,null);
-
+                int index = copyGenerated.indexOf(copySubmitted.get(i));
+                copyGenerated.set(index, null);
+                copySubmitted.set(i, null);
             }
-
         }
-
-//
 
 
     }
+
+
+
 
     public void showResults(int resultRow){
         for (int i=0;i<red;i++){
             allRezList.get(resultRow).get(i).setBackgroundColor(Color.RED);
 
         }
-        for(int i=red;i<yellow+1;i++){
+        for(int i=red;i<yellow;i++){
             allRezList.get(resultRow).get(i).setBackgroundColor(Color.YELLOW);
         }
         calculatePoints();
