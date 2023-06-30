@@ -15,12 +15,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.pazzly.R;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -116,44 +119,82 @@ public class FragmentAsocijacije extends Fragment {
         return view;
     }
 
-    public void readFromDatabase(){
+//    public void readFromDatabase(){
+//
+//        FirebaseFirestore firestoreDB = FirebaseFirestore.getInstance();
+//        firestoreDB.collection("asocijacije").get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()){
+//                QuerySnapshot querySnapshot=task.getResult();
+//                if (querySnapshot!=null){
+//                    for(QueryDocumentSnapshot document:querySnapshot){
+//
+//                        String documentId= document.getId();
+//                        String konacno=document.getString("Konacno");
+//                        List<Object>aArray=(List<Object>) document.get("GrupaA");
+//                        List<Object>bArray=(List<Object>) document.get("GrupaB");
+//                        List<Object>cArray=(List<Object>) document.get("GrupaC");
+//                        List<Object>dArray=(List<Object>) document.get("GrupaD");
+//
+//                        buttonsGameLogic(aArray, bArray, cArray, dArray, konacno);
+//                        finalColumnsLogic(aArray, bArray, cArray, dArray, konacno);
+//
+//
+//                        aArray.forEach(el->{
+//                            Log.d("ARRELEMENT",el.toString());
+//                        });
+//
+//
+//
+//                    }
+//                }
+//
+//            }
+//            else
+//            {
+//
+//            };
+//
+//        });
+//
+//    };
 
+
+    public void readFromDatabase() {
         FirebaseFirestore firestoreDB = FirebaseFirestore.getInstance();
-        firestoreDB.collection("asocijacije").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()){
-                QuerySnapshot querySnapshot=task.getResult();
-                if (querySnapshot!=null){
-                    for(QueryDocumentSnapshot document:querySnapshot){
+        CollectionReference collectionRef = firestoreDB.collection("asocijacije");
 
-                        String documentId= document.getId();
-                        String konacno=document.getString("Konacno");
-                        List<Object>aArray=(List<Object>) document.get("GrupaA");
-                        List<Object>bArray=(List<Object>) document.get("GrupaB");
-                        List<Object>cArray=(List<Object>) document.get("GrupaC");
-                        List<Object>dArray=(List<Object>) document.get("GrupaD");
+        collectionRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    List<DocumentSnapshot> documents = querySnapshot.getDocuments();
+                    int randomIndex = (int) (Math.random() * documents.size());
+                    QueryDocumentSnapshot randomDocument = (QueryDocumentSnapshot) documents.get(randomIndex);
 
-                        buttonsGameLogic(aArray, bArray, cArray, dArray, konacno);
-                        finalColumnsLogic(aArray, bArray, cArray, dArray, konacno);
+                    String documentId = randomDocument.getId();
+                    String konacno = randomDocument.getString("Konacno");
+                    List<Object> aArray = (List<Object>) randomDocument.get("GrupaA");
+                    List<Object> bArray = (List<Object>) randomDocument.get("GrupaB");
+                    List<Object> cArray = (List<Object>) randomDocument.get("GrupaC");
+                    List<Object> dArray = (List<Object>) randomDocument.get("GrupaD");
 
+                    buttonsGameLogic(aArray, bArray, cArray, dArray, konacno);
+                    finalColumnsLogic(aArray, bArray, cArray, dArray, konacno);
 
-                        aArray.forEach(el->{
-                            Log.d("ARRELEMENT",el.toString());
-                        });
-
-
-
-                    }
+                    aArray.forEach(el -> {
+                        Log.d("ARRELEMENT", el.toString());
+                    });
                 }
-
+            } else {
+                // Handle error
             }
-            else
-            {
-
-            };
-
         });
+    }
 
-    };
+
+
+
+
 
     public void columnAValues(List<Object> aArray){
 
@@ -396,7 +437,7 @@ public class FragmentAsocijacije extends Fragment {
 
                if(isAOpened==false){
 
-                   if (aArray.size() > 4 && enteredValueA.equals(aArray.get(4).toString())) {
+                   if (aArray.size() > 4 && enteredValueA.toUpperCase(Locale.ROOT).equals(aArray.get(4).toString())) {
 
                        aEditText.setText(aArray.get(4).toString());
                        aEditText.setEnabled(false);
@@ -417,7 +458,7 @@ public class FragmentAsocijacije extends Fragment {
 
                if(isBOpened==false){
 
-                   if (bArray.size() > 4 && enteredValueB.equals(bArray.get(4).toString())) {
+                   if (bArray.size() > 4 && enteredValueB.toUpperCase(Locale.ROOT).equals(bArray.get(4).toString())) {
                        bEditText.setText(bArray.get(4).toString());
                        bEditText.setEnabled(false);
                        int points=0;
@@ -439,7 +480,7 @@ public class FragmentAsocijacije extends Fragment {
                }
 
                 if(isCOpened==false){
-                    if (cArray.size() > 4 && enteredValueC.equals(cArray.get(4).toString())) {
+                    if (cArray.size() > 4 && enteredValueC.toUpperCase(Locale.ROOT).equals(cArray.get(4).toString())) {
                         cEditText.setText(cArray.get(4).toString());
                         cEditText.setEnabled(false);
                         int points=0;
@@ -460,7 +501,7 @@ public class FragmentAsocijacije extends Fragment {
 
                 if(isDOpened==false){
 
-                    if (dArray.size() > 4 && enteredValueD.equals(dArray.get(4).toString())) {
+                    if (dArray.size() > 4 && enteredValueD.toUpperCase(Locale.ROOT).equals(dArray.get(4).toString())) {
                         dEditText.setText(dArray.get(4).toString());
                         dEditText.setEnabled(false);
                         int points=0;
@@ -479,7 +520,7 @@ public class FragmentAsocijacije extends Fragment {
 
 
 
-                if (enteredValueF.equals(konacno)) {
+                if (enteredValueF.toUpperCase(Locale.ROOT).equals(konacno)) {
                     String textA=aEditText.getText().toString();
                     String textB=bEditText.getText().toString();
                     String textC=cEditText.getText().toString();

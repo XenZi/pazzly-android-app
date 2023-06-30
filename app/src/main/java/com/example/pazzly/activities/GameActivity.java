@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class GameActivity extends AppCompatActivity implements FragmentGameInfo.TimerCallback, FragmentMojBroj.SubmitCallback, FragmentKorakPoKorak.SubmitCallback,FragmentAsocijacije.SubmitCallbackAsocijacije,FragmentSkocko.SubmitCallbackSkocko{
+public class GameActivity extends AppCompatActivity implements FragmentGameInfo.TimerCallback, FragmentMojBroj.SubmitCallback, FragmentKorakPoKorak.SubmitCallback,FragmentAsocijacije.SubmitCallbackAsocijacije,FragmentSkocko.SubmitCallbackSkocko,FragmentSpojnice.SubmitCallbackSpojnice{
     private Map<Integer, GameFragmentPair> gameFragmentMap = new HashMap<>();
     private boolean gameFinished = false;
     private int firstUserPoints = 0;
@@ -77,6 +77,9 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
         if (gameFragmentMap.get(currentActiveGame).getFragment() instanceof FragmentSkocko) {
             ((FragmentSkocko) gameFragmentMap.get(currentActiveGame).getFragment()).setSubmitCallbackSkocko(this);
         }
+        if (gameFragmentMap.get(currentActiveGame).getFragment() instanceof FragmentSpojnice) {
+            ((FragmentSpojnice) gameFragmentMap.get(currentActiveGame).getFragment()).setSubmitCallbackSpojnice(this);
+        }
         if (gameFragmentMap.get(currentActiveGame).getGame().getRounds() > 1 && gameFragmentMap.get(currentActiveGame).getGame().getCurrentRound() > 1) {
             switch (currentActiveGame) {
                 case 0:
@@ -94,6 +97,11 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
                 case 2:
                     fragmentToInitialize = FragmentKorakPoKorak.newInstance();
                     ((FragmentKorakPoKorak) fragmentToInitialize).setSubmitCallback(this);
+                    break;
+                case 4:
+                    fragmentToInitialize = FragmentSpojnice.newInstance();
+                    ((FragmentSpojnice) fragmentToInitialize).setSubmitCallbackSpojnice(this);
+                    break;
                 default:
                     break;
             }
@@ -109,13 +117,13 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
         FragmentKorakPoKorak fragmentKorakPoKorak = FragmentKorakPoKorak.newInstance();
         GameFragmentPair gameFragmentPairMojBroj = new GameFragmentPair(mojBroj, mojBrojFragment);
         GameFragmentPair gameFragmentPairKorakPoKorak = new GameFragmentPair(korakPoKorak, fragmentKorakPoKorak);
-        Asocijacija asocijacija= new Asocijacija(1,30,0,2);
+        Asocijacija asocijacija= new Asocijacija(2,30,0,2);
         FragmentAsocijacije fragmentAsocijacije=FragmentAsocijacije.newInstance();
         GameFragmentPair gameFragmentPairAsocijacije=new GameFragmentPair(asocijacija,fragmentAsocijacije);
-        Skocko skocko= new Skocko(1,20,0,1);
+        Skocko skocko= new Skocko(2,20,0,1);
         FragmentSkocko fragmentSkocko=FragmentSkocko.newInstance();
         GameFragmentPair gameFragmentPairSkocko=new GameFragmentPair(skocko,fragmentSkocko);
-        Spojnice spojnice= new Spojnice(1,20,0,5);
+        Spojnice spojnice= new Spojnice(2,10,0,1);
         FragmentSpojnice fragmentSpojnice=FragmentSpojnice.newInstance();
         GameFragmentPair gameFragmentPairSpojnice=new GameFragmentPair(spojnice,fragmentSpojnice);
 
@@ -248,12 +256,27 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
     }
 
     @Override
+    public void onSubmissionSpojnice(int points) {
+        FragmentGameInfo fragmentGameInfo = (FragmentGameInfo) getSupportFragmentManager().findFragmentById(R.id.upView);
+        firstUserPoints += points;
+        fragmentGameInfo.updatePoints(firstUserPoints);
+
+        if (points==0){
+            if (fragmentGameInfo != null) {
+                fragmentGameInfo.stopTimer();
+            }
+            finishGame();
+        }
+
+    }
+
+    @Override
     public void onSubmissionSkocko(int points) {
         FragmentGameInfo fragmentGameInfo = (FragmentGameInfo) getSupportFragmentManager().findFragmentById(R.id.upView);
         firstUserPoints += points;
         fragmentGameInfo.updatePoints(firstUserPoints);
 
-        if (points>0){
+        if (points>0 || points==0){
             if (fragmentGameInfo != null) {
                 fragmentGameInfo.stopTimer();
             }

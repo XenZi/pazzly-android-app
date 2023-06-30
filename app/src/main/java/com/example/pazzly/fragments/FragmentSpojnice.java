@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.pazzly.R;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -33,8 +34,17 @@ public class FragmentSpojnice extends Fragment {
     private List<Button> btnColAList=new ArrayList<>();
     private List<Button> btnColBList=new ArrayList<>();
 
-    private int red=0;
-    private int green=0;
+    private FragmentSpojnice.SubmitCallbackSpojnice callbackSpojnice;
+    public interface SubmitCallbackSpojnice {
+        void onSubmissionSpojnice(int points);
+    }
+
+    public void setSubmitCallbackSpojnice(FragmentSpojnice.SubmitCallbackSpojnice callback) {
+        callbackSpojnice = callback;
+    }
+
+    private int numOfTries=0;
+
     public static FragmentSpojnice newInstance() {
         return new FragmentSpojnice();
     }
@@ -77,44 +87,71 @@ public class FragmentSpojnice extends Fragment {
         question=view.findViewById(R.id.question);
     }
 
-    public void readFromDatabase(){
+//    public void readFromDatabase(){
+//
+//        FirebaseFirestore firestoreDB = FirebaseFirestore.getInstance();
+//        firestoreDB.collection("spojnice").get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()){
+//                QuerySnapshot querySnapshot=task.getResult();
+//                if (querySnapshot!=null){
+//                    for(QueryDocumentSnapshot document:querySnapshot){
+//
+//                        String documentId= document.getId();
+//                        String questionBase=document.getString("Pitanje");
+//                        Log.d("PITANJE", questionBase);
+//
+//                        List<Object>aArray=(List<Object>) document.get("KolonaA");
+//                        List<Object>bArray=(List<Object>) document.get("KolonaB");
+//
+//                        initialValues(aArray,bArray,questionBase);
+//
+//                        gameLogic(aArray,bArray);
+//
+//
+//
+//
+//
+//
+//
+//                    }
+//                }
+//
+//            }
+//            else
+//            {
+//
+//            };
+//
+//        });
+//
+//    };
 
+    public void readFromDatabase() {
         FirebaseFirestore firestoreDB = FirebaseFirestore.getInstance();
         firestoreDB.collection("spojnice").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()){
-                QuerySnapshot querySnapshot=task.getResult();
-                if (querySnapshot!=null){
-                    for(QueryDocumentSnapshot document:querySnapshot){
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    List<DocumentSnapshot> documents = querySnapshot.getDocuments();
+                    int randomIndex = (int) (Math.random() * documents.size());
+                    QueryDocumentSnapshot randomDocument = (QueryDocumentSnapshot) documents.get(randomIndex);
 
-                        String documentId= document.getId();
-                        String questionBase=document.getString("Pitanje");
-                        Log.d("PITANJE", questionBase);
+                    String documentId = randomDocument.getId();
+                    String questionBase = randomDocument.getString("Pitanje");
+                    Log.d("PITANJE", questionBase);
 
-                        List<Object>aArray=(List<Object>) document.get("KolonaA");
-                        List<Object>bArray=(List<Object>) document.get("KolonaB");
+                    List<Object> aArray = (List<Object>) randomDocument.get("KolonaA");
+                    List<Object> bArray = (List<Object>) randomDocument.get("KolonaB");
 
-                        initialValues(aArray,bArray,questionBase);
-
-                        gameLogic(aArray,bArray);
-
-
-
-
-
-
-
-                    }
+                    initialValues(aArray, bArray, questionBase);
+                    gameLogic(aArray, bArray);
                 }
-
+            } else {
+                // Handle error
             }
-            else
-            {
-
-            };
-
         });
+    }
 
-    };
 
     public void initialValues(List<Object> aArray,List<Object> bArray,String questionBase){
 
@@ -181,6 +218,9 @@ public class FragmentSpojnice extends Fragment {
                                 bButton.setEnabled(false);
                                 aButton.setBackgroundColor(Color.GREEN);
                                 bButton.setBackgroundColor(Color.GREEN);
+                                callbackSpojnice.onSubmissionSpojnice(2);
+                                numOfTries+=1;
+
 
 
 
@@ -188,7 +228,12 @@ public class FragmentSpojnice extends Fragment {
                             } if(aIndex!=bIndex && aButton.isEnabled()) {
                                 aButton.setEnabled(false);
                                 aButton.setBackgroundColor(Color.RED);
+                                numOfTries+=1;
                                 Log.d("Pair Mismatch", "Indices do not match!");
+                            }
+
+                            if(numOfTries==5){
+                                callbackSpojnice.onSubmissionSpojnice(0);
                             }
                         });
                     }

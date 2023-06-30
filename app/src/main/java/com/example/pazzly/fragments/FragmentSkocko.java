@@ -298,17 +298,17 @@ public class FragmentSkocko extends Fragment {
     }
     public void generateRandomAnswer(){
 
-//        for(int i=0;i<4;i++){
-//            Random random = new Random();
-//            generatedAnswer.add(random.nextInt(6));
-//            Log.d("SKOCKORESENJE", generatedAnswer.toString());
-//
-//
-//        }
-        generatedAnswer.add(1);
-        generatedAnswer.add(2);
-        generatedAnswer.add(3);
-        generatedAnswer.add(4);
+        for(int i=0;i<4;i++){
+            Random random = new Random();
+            generatedAnswer.add(random.nextInt(6));
+            Log.d("SKOCKORESENJE", generatedAnswer.toString());
+
+
+        }
+//        generatedAnswer.add(1);
+//        generatedAnswer.add(2);
+//        generatedAnswer.add(3);
+//        generatedAnswer.add(4);
     }
 
     public void calculatePoints(){
@@ -329,7 +329,19 @@ public class FragmentSkocko extends Fragment {
                     break;
             }
         }
-        callbackSkocko.onSubmissionSkocko(points);
+        if(rowCounter==6 && red!=4){
+            callbackSkocko.onSubmissionSkocko(0);
+
+
+        }
+
+
+
+
+
+
+
+
     }
 
 }
