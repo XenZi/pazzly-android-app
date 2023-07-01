@@ -113,8 +113,14 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
     private void initializeGamesIntoGameList() {
         MojBroj mojBroj = new MojBroj(2, 20, 0, 1);
         Fragment mojBrojFragment = FragmentMojBroj.newInstance();
+<<<<<<< HEAD
         KorakPoKorak korakPoKorak = new KorakPoKorak(2, 20, 0, 1);
+=======
+
+        KorakPoKorak korakPoKorak = new KorakPoKorak(2, 20, 0, 10);
+>>>>>>> 7d3f02ecc208e5e9d24a1336992dfed1b605ba21
         FragmentKorakPoKorak fragmentKorakPoKorak = FragmentKorakPoKorak.newInstance();
+
         GameFragmentPair gameFragmentPairMojBroj = new GameFragmentPair(mojBroj, mojBrojFragment);
         GameFragmentPair gameFragmentPairKorakPoKorak = new GameFragmentPair(korakPoKorak, fragmentKorakPoKorak);
         Asocijacija asocijacija= new Asocijacija(2,30,0,2);
@@ -287,7 +293,6 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
 
     public void onSubmission(int points) {
         if (!gameFinished) {
-            Log.d("TEST GAME FINISHED", "TEST");
             gameFinished = true;
             FragmentGameInfo fragmentGameInfo = (FragmentGameInfo) getSupportFragmentManager().findFragmentById(R.id.upView);
             if (fragmentGameInfo != null) {
