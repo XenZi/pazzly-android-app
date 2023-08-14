@@ -3,6 +3,7 @@ package com.example.pazzly.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,21 +13,33 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 
+import com.example.pazzly.MainActivity;
 import com.example.pazzly.R;
+import com.example.pazzly.activities.GameActivity;
+import com.example.pazzly.activities.HomeScreenActivity;
 
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.MapContext;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.example.pazzly.activities.HomeScreenActivity;
+import com.example.pazzly.domain.entity.Game;
+import com.example.pazzly.domain.entity.Match;
+import com.example.pazzly.domain.manager.SocketIOManager;
 
 public class FragmentMojBroj extends Fragment {
     private View view;
@@ -42,10 +55,15 @@ public class FragmentMojBroj extends Fragment {
     private List<Button> numberButtons;
     private List<Button> operationButtons;
     private SubmitCallback submitCallback;
-
-
-    public static FragmentMojBroj newInstance() {
-        return new FragmentMojBroj();
+    private ConstraintLayout wholeFragment;
+    private TextView resultFromUser1;
+    private TextView resultFromUser2;
+    private Match match;
+    private GameActivity gameActivity;
+    public static FragmentMojBroj newInstance(Match match) {
+        FragmentMojBroj fragmentMojBroj = new FragmentMojBroj();
+        fragmentMojBroj.setMatch(match);
+        return fragmentMojBroj;
     }
 
     public interface SubmitCallback {
@@ -58,6 +76,7 @@ public class FragmentMojBroj extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_moj_broj, container, false);
+        this.gameActivity = (GameActivity) getActivity();
         initializeViews();
         initializeNumberButtons();
         initializeOperationButtons();
@@ -70,17 +89,53 @@ public class FragmentMojBroj extends Fragment {
         clickCounter = new AtomicInteger();
 
         handler.post(updateRunnableForFinalNumber);
+        initializeSocketListenerForRandomNumber();
+        if (!HomeScreenActivity.loggedUser.getId().equals(this.match.getPlayerTurn())) {
+            freezeScreen();
+        }
         return view;
     }
 
 
+    private void initializeSocketListenerForRandomNumber() {
+        SocketIOManager.getInstance().getSocket().on("sendRandomNumber", args -> {
+            JSONObject object = (JSONObject) args[0];
+            try {
+                String number = object.getString("randomNumber");
+                JSONArray array = (JSONArray) object.getJSONArray("selectedNumbers");
+                isUpdating = false;
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            wantedNumberTextView.setText(number);
+                            for (int i = 0;i< array.length();i++) {
+                                try {
+                                    numberButtons.get(i).setText(String.valueOf(array.get(i)));
+                                    unfreezeScreen();
+
+                                } catch (JSONException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 
     private void initializeViews() {
+        wholeFragment = view.findViewById(R.id.mojbrojFragment);
         wantedNumberTextView = view.findViewById(R.id.wantedNumber);
         stopButton = view.findViewById(R.id.stopMojBroj);
         deleteButton = view.findViewById(R.id.deleteExpressionButton);
         submitButton = view.findViewById(R.id.btnSubmitMojBroj);
         currentStateOfExpression = view.findViewById(R.id.currentStateOfExpression);
+        resultFromUser1 = view.findViewById(R.id.resultFromUser1);
+        resultFromUser2 = view.findViewById(R.id.resultFromUser2);
     }
 
     private void initializeNumberButtons() {
@@ -166,8 +221,24 @@ public class FragmentMojBroj extends Fragment {
             handler.post(updateRunnableForNumbers);
         } else if (count == 1) {
             handler.removeCallbacks(updateRunnableForNumbers);
+            if (HomeScreenActivity.loggedUser.getId().equals(this.match.getPlayerTurn())) {
+                JSONObject data = new JSONObject();
+                try {
+                    data.put("matchId", this.match.getId());
+                    data.put("randomNumber", this.wantedNumberTextView.getText().toString());
+                    JSONArray jsonArray = new JSONArray();
+                    numberButtons.forEach(button -> {
+                        jsonArray.put(button.getText().toString());
+                    });
+                    data.put("selectedNumbers", jsonArray);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                SocketIOManager.getInstance().getSocket().emit("sendNumbers",data);
+            }
             isUpdating = false;
         }
+
     }
 
     private Runnable updateRunnableForFinalNumber = new Runnable() {
@@ -272,19 +343,45 @@ public class FragmentMojBroj extends Fragment {
             JexlExpression jexlExpression = jexlEngine.createExpression(expression);
             result = jexlExpression.evaluate(jexlContext);
             finalResult.setText(String.valueOf(result));
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("matchId", this.match.getId());
+            jsonObject.put("playerId", HomeScreenActivity.loggedUser.getId());
+            jsonObject.put("result", result);
+            jsonObject.put("wantedNumber", wantedNumberTextView.getText().toString());
+            jsonObject.put("hasMoreRounds", this.match.getActiveGame().getCurrentRound() < this.match.getActiveGame().getRounds());
+            SocketIOManager.getInstance().getSocket().emit("mojBrojResult", jsonObject);
         } catch (Exception e) {
             finalResult.setText("Invalid");
-        } finally {
-            if (submitCallback != null) {
-                if (result != null) {
-                    submitCallback.onSubmission(calculatePoints(Integer.parseInt(result.toString())));
-                    return;
-                }
-                submitCallback.onSubmission(0);
-            }
         }
+        gameResultDone();
     }
 
+    private void gameResultDone() {
+        SocketIOManager.getInstance().getSocket().on("gameFinished", args -> {
+            JSONObject jsonObject = (JSONObject) args[0];
+            try {
+                String player1Result = jsonObject.getString("player1Result");
+                String player2Result = jsonObject.getString("player2Result");
+                resultFromUser1.setText(player1Result);
+                resultFromUser2.setText(player2Result);
+                JSONObject jsonObject1 = (JSONObject) jsonObject.get("calculatedPoints");
+                String points = jsonObject1.getString("points");
+                String pointsWinnerID = jsonObject1.getString("player");
+                String turn = jsonObject.getString("turn");
+                this.match.setPlayerTurn(turn);
+                if (this.match.getPlayer1().getUUID().equals(pointsWinnerID)) {
+                    this.match.getPlayer1().setPoints(this.match.getPlayer1().getPoints() + Integer.valueOf(points));
+                } else {
+                    this.match.getPlayer2().setPoints(this.match.getPlayer2().getPoints() + Integer.valueOf(points));
+                }
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    submitCallback.onSubmission(Integer.valueOf(points));
+                }, 1500);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
     private int calculatePoints(Integer passedResult) {
         if (String.valueOf(passedResult).equals(wantedNumberTextView.toString())) {
             return 20;
@@ -293,5 +390,45 @@ public class FragmentMojBroj extends Fragment {
             return 0;
         }
         return 5;
+    }
+
+
+    private void freezeScreen() {
+        // Disable interactive UI elements
+        stopButton.setEnabled(false);
+        deleteButton.setEnabled(false);
+        submitButton.setEnabled(false);
+        // Disable number and operation buttons
+        for (Button button : numberButtons) {
+            button.setEnabled(false);
+        }
+        for (Button button : operationButtons) {
+            button.setEnabled(false);
+        }
+        // Make the freezeOverlayView visible
+        view.setVisibility(View.VISIBLE);
+    }
+
+    private void unfreezeScreen() {
+        // Enable interactive UI elements
+        stopButton.setEnabled(true);
+        deleteButton.setEnabled(true);
+        submitButton.setEnabled(true);
+        // Enable number and operation buttons
+        for (Button button : numberButtons) {
+            button.setEnabled(true);
+        }
+        for (Button button : operationButtons) {
+            button.setEnabled(true);
+        }
+        // Hide the freezeOverlayView
+        view.setVisibility(View.VISIBLE);
+    }
+    public Match getMatch() {
+        return match;
+    }
+
+    public void setMatch(Match match) {
+        this.match = match;
     }
 }
