@@ -67,7 +67,7 @@ public class FragmentMojBroj extends Fragment {
     }
 
     public interface SubmitCallback {
-        void onSubmission(int points);
+        void onSubmission(int points) throws JSONException;
     }
 
     public void setSubmitCallback(SubmitCallback callback) {
@@ -93,6 +93,7 @@ public class FragmentMojBroj extends Fragment {
         if (!HomeScreenActivity.loggedUser.getId().equals(this.match.getPlayerTurn())) {
             freezeScreen();
         }
+        gameResultDone();
         return view;
     }
 
@@ -353,7 +354,6 @@ public class FragmentMojBroj extends Fragment {
         } catch (Exception e) {
             finalResult.setText("Invalid");
         }
-        gameResultDone();
     }
 
     private void gameResultDone() {
@@ -368,14 +368,17 @@ public class FragmentMojBroj extends Fragment {
                 String points = jsonObject1.getString("points");
                 String pointsWinnerID = jsonObject1.getString("player");
                 String turn = jsonObject.getString("turn");
+                int player1Points = jsonObject.getInt("player1Points");
+                int player2Points = jsonObject.getInt("player2Points");
                 this.match.setPlayerTurn(turn);
-                if (this.match.getPlayer1().getUUID().equals(pointsWinnerID)) {
-                    this.match.getPlayer1().setPoints(this.match.getPlayer1().getPoints() + Integer.valueOf(points));
-                } else {
-                    this.match.getPlayer2().setPoints(this.match.getPlayer2().getPoints() + Integer.valueOf(points));
-                }
+                this.match.getPlayer1().setPoints(player1Points);
+                this.match.getPlayer2().setPoints(player2Points);
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    submitCallback.onSubmission(Integer.valueOf(points));
+                    try {
+                        submitCallback.onSubmission(0);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
                 }, 1500);
             } catch (JSONException e) {
                 throw new RuntimeException(e);

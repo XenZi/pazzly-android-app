@@ -2,6 +2,7 @@ package com.example.pazzly.fragments;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +16,18 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.pazzly.R;
+import com.example.pazzly.activities.HomeScreenActivity;
+import com.example.pazzly.domain.entity.Match;
+import com.example.pazzly.domain.manager.SocketIOManager;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,17 +41,25 @@ public class FragmentKorakPoKorak extends Fragment {
     private List<String> valueSteps;
     private Button submitButton;
     private String konacniOdgovor;
-    private SubmitCallback submitCallback;
-    public static FragmentKorakPoKorak newInstance() {
-        return new FragmentKorakPoKorak();
+    private Match match;
+    private SubmitCallbackKorakPoKorak callbackKorakPoKorak;
+    public static FragmentKorakPoKorak newInstance(Match match) {
+        FragmentKorakPoKorak fragmentKorakPoKorak = new FragmentKorakPoKorak();
+        fragmentKorakPoKorak.setMatch(match);
+        return fragmentKorakPoKorak;
     }
 
-    public interface SubmitCallback {
-        void onSubmission(int points);
+
+    public SubmitCallbackKorakPoKorak getCallbackKorakPoKorak() {
+        return callbackKorakPoKorak;
     }
 
-    public void setSubmitCallback(SubmitCallback callback) {
-        submitCallback = callback;
+    public void setCallbackKorakPoKorak(SubmitCallbackKorakPoKorak callbackKorakPoKorak) {
+        this.callbackKorakPoKorak = callbackKorakPoKorak;
+    }
+
+    public interface SubmitCallbackKorakPoKorak {
+        void onSubmissionKorakPoKorak();
     }
 
     @Override
@@ -53,12 +69,31 @@ public class FragmentKorakPoKorak extends Fragment {
         initializeView();
         firestoreDB = FirebaseFirestore.getInstance();
         handler = new Handler();
+
+        if (!this.match.getPlayerTurn().equals(HomeScreenActivity.loggedUser.getId())) {
+            freezeFragment();
+        } else {
+            try {
+                SocketIOManager.getInstance().getSocket().emit("korakPoKorakInitialStart", new JSONObject().put("matchId", this.match.getId()));
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }
         initializeStepsListWithStringValues();
+        initializeSubmitFinalAnswerListenerSocketAction();
+        initializeEndGameSocket();
         return view;
     }
 
     private void initializeView() {
         submitButton = view.findViewById(R.id.submitKorakPoKorakAnswer);
+        submitButton.setOnClickListener(click -> {
+            try {
+                handleSubmit();
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
     private void initializeStepsTextView() {
         steps = new ArrayList<>();
@@ -74,27 +109,19 @@ public class FragmentKorakPoKorak extends Fragment {
     private void initializeStepsListWithStringValues() {
         valueSteps = new ArrayList<>();
         konacniOdgovor = "";
-        firestoreDB.collection("korakpokorak")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        // Retrieve the documents
-                        QuerySnapshot querySnapshot = task.getResult();
-                        if (querySnapshot != null) {
-                            for (QueryDocumentSnapshot document : querySnapshot) {
-                                List<Object> array = (List<Object>) document.get("koraci");
-                                konacniOdgovor = document.getString("finalno");
-                                array.forEach(el -> {
-                                    valueSteps.add(el.toString());
-                                });
-                            }
-                        }
-                        startUpdatingSteps();
-                        submitButton.setOnClickListener(click -> handleSubmit());
-                    } else {
-                        // Handle unsuccessful retrieval
-                    }
-                });
+        SocketIOManager.getInstance().getSocket().on("korakPoKorakValues", args -> {
+           JSONObject object = (JSONObject) args[0];
+            try {
+                konacniOdgovor = object.getString("finalno");
+                JSONArray jsonArray = (JSONArray) object.getJSONArray("koraci");
+                for (int i=0;i<jsonArray.length();i++) {
+                    valueSteps.add(jsonArray.getString(i));
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            startUpdatingSteps();
+        });
     }
 
     private void startUpdatingSteps() {
@@ -115,6 +142,8 @@ public class FragmentKorakPoKorak extends Fragment {
     private void stopUpdatingSteps() {
         handler.removeCallbacksAndMessages(null);
     }
+
+
     private void updateStepText() {
         if (currentStep > 6) {
             stopUpdatingSteps();
@@ -128,45 +157,104 @@ public class FragmentKorakPoKorak extends Fragment {
         steps.get(currentStep).setText(valueSteps.get(currentStep));
     }
 
-    public void handleSubmit() {
+    public void handleSubmit() throws JSONException {
         TextInputLayout textInputLayout = view.findViewById(R.id.korakPoKorakAnswer);
         EditText editText = textInputLayout.getEditText();
         String passedAnswer = editText.getText().toString();
         if (!passedAnswer.equals(konacniOdgovor)) {
+            initializeSubmitFinalInvalidAnswerSocketAction();
             return;
         }
-        int points = 0;
-        switch (currentStep) {
-            case 0:
-                points = 20;
-                break;
-            case 1:
-                points = 18;
-                break;
-            case 2:
-                points = 16;
-                break;
-            case 3:
-                points = 14;
-                break;
-            case 4:
-                points = 12;
-                break;
-            case 5:
-                points = 10;
-                break;
-            case 6:
-                points = 8;
-                break;
-            case 7:
-                points = 6;
-                break;
-            default:
-                points = 0;
-                break;
-        }
-        if (submitCallback != null) {
-            submitCallback.onSubmission(points);
-        }
+        initializeSubmitFinalAnswerSocketAction();
+//        if (submitCallback != null) {
+//            submitCallback.onSubmission(0);
+//        }
+//        if (callbackKorakPoKorak != null) {
+//            callbackKorakPoKorak.onSubmissionKorakPoKorak();
+//        }
+    }
+
+    private void freezeFragment() {
+        submitButton.setEnabled(false);
+        TextInputLayout textInputLayout = view.findViewById(R.id.korakPoKorakAnswer);
+        EditText editText = textInputLayout.getEditText();
+        editText.setEnabled(false);
+    }
+
+    private void unfreezeFragment() {
+        submitButton.setEnabled(true);
+        TextInputLayout textInputLayout = view.findViewById(R.id.korakPoKorakAnswer);
+        EditText editText = textInputLayout.getEditText();
+        editText.setEnabled(true);
+
+    }
+
+    private void initializeSubmitFinalAnswerSocketAction() throws JSONException {
+        TextInputLayout textInputLayout = view.findViewById(R.id.korakPoKorakAnswer);
+        EditText editText = textInputLayout.getEditText();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("matchId", this.match.getId());
+        jsonObject.put("playerTurnId", this.match.getPlayerTurn());
+        jsonObject.put("step", this.currentStep == 0 ? 0 : this.currentStep - 1);
+        jsonObject.put("answer", editText.getText());
+        jsonObject.put("hasMoreRounds", this.match.getActiveGame().getCurrentRound() < this.match.getActiveGame().getRounds());
+        SocketIOManager.getInstance().getSocket().emit("submitFinalAnswerForKorakPoKorakCorrect", jsonObject);
+
+    }
+    private void initializeSubmitFinalAnswerListenerSocketAction() {
+        SocketIOManager.getInstance().getSocket().on("korakPoKorakSubmitedAnswer", args -> {
+            JSONObject jsonObject = (JSONObject) args[0];
+            String submitedAnswer = null;
+            try {
+                submitedAnswer = jsonObject.getString("answer");
+                TextInputLayout textInputLayout = view.findViewById(R.id.korakPoKorakAnswer);
+                String finalSubmitedAnswer = submitedAnswer;
+                if (getActivity() != null) {
+                    requireActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textInputLayout.getEditText().setText(finalSubmitedAnswer);
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                textInputLayout.getEditText().setText("");
+                            }, 1500);
+                        }
+                    });
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+
+        });
+    }
+
+    private void initializeSubmitFinalInvalidAnswerSocketAction() throws JSONException {
+        TextInputLayout textInputLayout = view.findViewById(R.id.korakPoKorakAnswer);
+        EditText editText = textInputLayout.getEditText();
+        SocketIOManager.getInstance().getSocket().emit("submitFinalAnswerForKorakPoKorakInvalidAnswer", new JSONObject().put("matchId", this.getMatch().getId()).put("answer", editText.getText()));
+    }
+
+    private void initializeEndGameSocket() {
+            SocketIOManager.getInstance().getSocket().on("endGameKorakPoKorak", args -> {
+                JSONObject jsonObject = (JSONObject) args[0];
+                try {
+                    Log.d("ENDGAMEKORAKPOKORAK", "initializeEndGameSocket: ");
+                    int player1Points = jsonObject.getInt("player1Points");
+                    int player2Points = jsonObject.getInt("player2Points");
+                    String turn = jsonObject.getString("turn");
+                    this.match.setPlayerTurn(turn);
+                    this.match.getPlayer1().setPoints(player1Points);
+                    this.match.getPlayer2().setPoints(player2Points);
+                    callbackKorakPoKorak.onSubmissionKorakPoKorak();
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+    }
+    public Match getMatch() {
+        return match;
+    }
+
+    public void setMatch(Match match) {
+        this.match = match;
     }
 }

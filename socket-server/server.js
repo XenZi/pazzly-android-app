@@ -1,8 +1,9 @@
 import { createServer } from "http";
 import { Server } from "socket.io";
-import GameStat from "./model/GameStat.js";
 import { v4 as uuidv4 } from "uuid";
-import { log } from "console";
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
+
 const httpServer = createServer();
 const io = new Server(httpServer, {
   cors: {
@@ -10,9 +11,56 @@ const io = new Server(httpServer, {
   },
 });
 
+const firebaseConfig = {
+  apiKey: "AIzaSyBddmSNTkz9ZnJ3ozBj2JX2TiYp69ySExw",
+  authDomain: "project-pazzly-b47a8.firebaseapp.com",
+  projectId: "project-pazzly-b47a8",
+  storageBucket: "project-pazzly-b47a8.appspot.com",
+  messagingSenderId: "1068294650791",
+  appId: "1:1068294650791:web:47aca8887903a10acb1482",
+  measurementId: "G-QGD7FMB5V7",
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore();
+const collectionRef = collection(db, "korakpokorak");
+
+const getCollectionData = async () => {
+  const querySnapshot = await getDocs(collectionRef);
+  return querySnapshot.docs.map((doc) => doc.data());
+};
+
+const getRandomItem = async () => {
+  const collectionData = await getCollectionData();
+  const randomIndex = Math.floor(Math.random() * collectionData.length);
+  return collectionData[randomIndex];
+};
+
+const findCloserNumber = (target, number1, number2) => {
+  const difference1 = Math.abs(target - number1);
+  const difference2 = Math.abs(target - number2);
+
+  if (difference1 < difference2) {
+    return {
+      points: 5,
+      player: "first",
+    };
+  } else {
+    return {
+      points: 5,
+      player: "second",
+    };
+  }
+};
+
+const calculatePointsForKorakPoKorak = (step) => {
+  return 20 - 2 * step;
+};
+
 const calculatePointsForMojBroj = (wantedNumber, firstResult, secondResult) => {
   console.log(
-    "Wanted number, result, second result" + wantedNumber,
+    "Wanted number, result, second result " + wantedNumber,
     firstResult,
     secondResult
   );
@@ -31,21 +79,8 @@ const calculatePointsForMojBroj = (wantedNumber, firstResult, secondResult) => {
   }
 
   if (firstResult != wantedNumber && secondResult != wantedNumber) {
-    let firstPlayerDivision = wantedNumber - firstResult;
-    let secondPlayerDivision = wantedNumber - secondResult;
-
-    if (firstPlayerDivision > secondPlayerDivision) {
-      return {
-        points: 5,
-        player: "second",
-      };
-    }
-    if (secondPlayerDivision > firstPlayerDivision) {
-      return {
-        points: 5,
-        player: "first",
-      };
-    }
+    console.log(findCloserNumber(wantedNumber, firstResult, secondResult));
+    return findCloserNumber(wantedNumber, firstResult, secondResult);
   }
 };
 
@@ -74,6 +109,8 @@ io.on("connection", (socket) => {
           player1Result: null,
           player2Result: null,
         },
+        currentActiveGame: 0,
+        currentActiveRound: 1,
       };
       activeMatches[matchId] = matchDetails;
       player1.socket.join(matchId);
@@ -139,12 +176,13 @@ io.on("connection", (socket) => {
 
         if (finalResults.calculatedPoints.player === "first") {
           activeMatches[matchId].player1Points =
+            activeMatches[matchId].player1Points +
             finalResults.calculatedPoints.points;
         } else {
           activeMatches[matchId].player2Points =
+            activeMatches[matchId].player2Points +
             finalResults.calculatedPoints.points;
         }
-
         console.log({
           ...finalResults,
           ...activeMatches[matchId],
@@ -161,12 +199,51 @@ io.on("connection", (socket) => {
   );
 
   socket.on("sendNumbers", ({ matchId, randomNumber, selectedNumbers }) => {
-    console.log("Recieved match ID from MojBroj", {
-      matchId,
-      randomNumber,
-      selectedNumbers,
-    });
     io.to(matchId).emit("sendRandomNumber", { randomNumber, selectedNumbers });
+  });
+
+  socket.on("korakPoKorakInitialStart", ({ matchId }) => {
+    getRandomItem()
+      .then((randomItem) => {
+        const savedRandomItem = { ...randomItem };
+        io.to(matchId).emit("korakPoKorakValues", randomItem);
+
+        socket.on(
+          "submitFinalAnswerForKorakPoKorakInvalidAnswer",
+          ({ matchId, answer }) => {
+            io.to(matchId).emit("korakPoKorakSubmitedAnswer", {
+              answer,
+            });
+          }
+        );
+
+        socket.on(
+          "submitFinalAnswerForKorakPoKorakCorrect",
+          ({ matchId, answer, playerTurnId, step, hasMoreRounds }) => {
+            if (hasMoreRounds) {
+              activeMatches[matchId].turn = activeMatches[matchId].player2.id;
+            } else {
+              activeMatches[matchId].turn = activeMatches[matchId].player1.id;
+            }
+            if (playerTurnId == activeMatches[matchId].player1.id) {
+              activeMatches[matchId].player1Points =
+                activeMatches[matchId].player1Points +
+                calculatePointsForKorakPoKorak(step);
+            } else {
+              activeMatches[matchId].player2Points =
+                activeMatches[matchId].player2Points +
+                calculatePointsForKorakPoKorak(step);
+            }
+            console.log({ ...activeMatches[matchId] });
+            io.to(matchId).emit("endGameKorakPoKorak", {
+              ...activeMatches[matchId],
+            });
+          }
+        );
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   });
 });
 
