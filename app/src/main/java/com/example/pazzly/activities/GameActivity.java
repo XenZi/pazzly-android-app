@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import com.example.pazzly.R;
 import com.example.pazzly.domain.entity.Asocijacija;
 import com.example.pazzly.domain.entity.Game;
+import com.example.pazzly.domain.entity.KoZnaZna;
 import com.example.pazzly.domain.entity.KorakPoKorak;
 import com.example.pazzly.domain.entity.Match;
 import com.example.pazzly.domain.entity.MojBroj;
@@ -21,6 +22,7 @@ import com.example.pazzly.domain.entity.Spojnice;
 import com.example.pazzly.domain.model.GameFragmentPair;
 import com.example.pazzly.fragments.FragmentAsocijacije;
 import com.example.pazzly.fragments.FragmentGameInfo;
+import com.example.pazzly.fragments.FragmentKoZnaZna;
 import com.example.pazzly.fragments.FragmentKorakPoKorak;
 import com.example.pazzly.fragments.FragmentMojBroj;
 import com.example.pazzly.fragments.FragmentSkocko;
@@ -32,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class GameActivity extends AppCompatActivity implements FragmentGameInfo.TimerCallback, FragmentMojBroj.SubmitCallback ,FragmentAsocijacije.SubmitCallbackAsocijacije,FragmentSkocko.SubmitCallbackSkocko,FragmentSpojnice.SubmitCallbackSpojnice, FragmentKorakPoKorak.SubmitCallbackKorakPoKorak {
+public class GameActivity extends AppCompatActivity implements FragmentGameInfo.TimerCallback, FragmentMojBroj.SubmitCallback ,FragmentAsocijacije.SubmitCallbackAsocijacije,FragmentSkocko.SubmitCallbackSkocko,FragmentSpojnice.SubmitCallbackSpojnice, FragmentKorakPoKorak.SubmitCallbackKorakPoKorak, FragmentKoZnaZna.SubmitCallbackKoZnaZna {
     private Map<Integer, GameFragmentPair> gameFragmentMap = new HashMap<>();
     private boolean gameFinished = false;
     private int currentActiveGame = 0;
@@ -74,6 +76,9 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
             return;
         }
         Fragment fragmentToInitialize = gameFragmentMap.get(currentActiveGame).getFragment();
+        if (gameFragmentMap.get(currentActiveGame).getFragment() instanceof FragmentKoZnaZna) {
+            ((FragmentKoZnaZna) gameFragmentMap.get(currentActiveGame).getFragment()).setCallbackKoZnaZna(this);
+        }
         if (gameFragmentMap.get(currentActiveGame).getFragment() instanceof FragmentMojBroj) {
             ((FragmentMojBroj) gameFragmentMap.get(currentActiveGame).getFragment()).setSubmitCallback(this); // Set the callback in the activity
         }
@@ -91,26 +96,16 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
         }
         if (gameFragmentMap.get(currentActiveGame).getGame().getRounds() > 1 && gameFragmentMap.get(currentActiveGame).getGame().getCurrentRound() > 1) {
             switch (currentActiveGame) {
-                case 3:
-                    fragmentToInitialize = FragmentAsocijacije.newInstance();
-                    ((FragmentAsocijacije) fragmentToInitialize).setSubmitCallbackAsocijacije(this);
-                    break;
-                case 2:
-                    fragmentToInitialize = FragmentSkocko.newInstance();
-                    ((FragmentSkocko) fragmentToInitialize).setSubmitCallbackSkocko(this);
+                case 0:
+                    fragmentToInitialize = FragmentKoZnaZna.newInstance(this.match);
+                    ((FragmentKoZnaZna) fragmentToInitialize).setCallbackKoZnaZna(this);
                     break;
                 case 1:
-                    fragmentToInitialize = FragmentMojBroj.newInstance(this.match);
-                    ((FragmentMojBroj) fragmentToInitialize).setSubmitCallback(this);
-                    break;
-                case 0:
                     fragmentToInitialize = FragmentKorakPoKorak.newInstance(this.match);
                     ((FragmentKorakPoKorak) fragmentToInitialize).setCallbackKorakPoKorak(this);
-                    break;
-                case 4:
-                    fragmentToInitialize = FragmentSpojnice.newInstance();
-                    ((FragmentSpojnice) fragmentToInitialize).setSubmitCallbackSpojnice(this);
-                    break;
+                case 2:
+                    fragmentToInitialize = FragmentMojBroj.newInstance(this.match);
+                    ((FragmentMojBroj) fragmentToInitialize).setSubmitCallback(this);
                 default:
                     break;
             }
@@ -120,6 +115,10 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
     }
 
     private void initializeGamesIntoGameList() {
+        KoZnaZna koZnaZna = new KoZnaZna(1, 50, -25, 0.41667);
+        FragmentKoZnaZna fragmentKoZnaZna = FragmentKoZnaZna.newInstance(this.match);
+        GameFragmentPair gameFragmentPairKoZnaZna = new GameFragmentPair(koZnaZna, fragmentKoZnaZna);
+
         MojBroj mojBroj = new MojBroj(2, 20, 0, 1);
         Fragment mojBrojFragment = FragmentMojBroj.newInstance(this.match);
         KorakPoKorak korakPoKorak = new KorakPoKorak(2, 20, 0, 1);
@@ -142,10 +141,9 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
 //        gameFragmentMap.put(3, gameFragmentPairMojBroj);
 //        gameFragmentMap.put(4,gameFragmentPairSpojnice);
 
-
-        gameFragmentMap.put(0, gameFragmentPairKorakPoKorak);
-        gameFragmentMap.put(1, gameFragmentPairMojBroj);
-
+        gameFragmentMap.put(0, gameFragmentPairKoZnaZna);
+        gameFragmentMap.put(1, gameFragmentPairKorakPoKorak);
+        gameFragmentMap.put(2, gameFragmentPairMojBroj);
     }
 
     @Override
@@ -163,7 +161,11 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.downView);
         if (currentFragment != null) {
             Log.d("CURRENTGAMENAME", String.valueOf(currentActiveGame) + " " + String.valueOf(currentGame.getCurrentRound()));
-            if (currentGame.getCurrentRound() <= currentGame.getRounds()) {
+            if (currentGame.getRounds() == 1) {
+                this.match.setPlayerTurn(this.match.getPlayer1().getUUID());
+                currentActiveGame++;
+            }
+            else if (currentGame.getCurrentRound() <= currentGame.getRounds()) {
                 currentGame.setCurrentRound(currentGame.getCurrentRound() + 1);
             } else {
                 this.match.setPlayerTurn(this.match.getPlayer1().getUUID());
@@ -240,6 +242,30 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
             }
             fragmentGameInfo.updatePoints();
             finishGame();
+        }
+    }
+
+    @Override
+    public void onSubmissionKoZnaZna() {
+        if (!gameFinished) {
+            gameFinished = true;
+            FragmentGameInfo fragmentGameInfo = (FragmentGameInfo) getSupportFragmentManager().findFragmentById(R.id.upView);
+            if (fragmentGameInfo != null) {
+                fragmentGameInfo.stopTimer();
+            }
+            fragmentGameInfo.updatePoints();
+            finishGame();
+        }
+    }
+
+    @Override
+    public void updateKoZnaZnaPoints() {
+        if (!gameFinished) {
+            FragmentGameInfo fragmentGameInfo = (FragmentGameInfo) getSupportFragmentManager().findFragmentById(R.id.upView);
+            if (fragmentGameInfo != null) {
+//                fragmentGameInfo.stopTimer();
+            }
+            fragmentGameInfo.updatePoints();
         }
     }
 }

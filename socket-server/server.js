@@ -26,15 +26,20 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore();
 const collectionRef = collection(db, "korakpokorak");
 
-const getCollectionData = async () => {
-  const querySnapshot = await getDocs(collectionRef);
+const getCollectionData = async (name) => {
+  const querySnapshot = await getDocs(collection(db, name));
   return querySnapshot.docs.map((doc) => doc.data());
 };
 
-const getRandomItem = async () => {
-  const collectionData = await getCollectionData();
+const getRandomItemForKorakPoKorak = async () => {
+  const collectionData = await getCollectionData("korakpokorak");
   const randomIndex = Math.floor(Math.random() * collectionData.length);
   return collectionData[randomIndex];
+};
+
+const getItemsForKoZnaZna = async () => {
+  const collectionData = await getCollectionData("koznazna");
+  return collectionData;
 };
 
 const findCloserNumber = (target, number1, number2) => {
@@ -108,6 +113,16 @@ io.on("connection", (socket) => {
         gameResults: {
           player1Result: null,
           player2Result: null,
+        },
+        koZnaZnaResults: {
+          player1: {
+            time: null,
+            isCorrect: null,
+          },
+          player2: {
+            time: null,
+            isCorrect: null,
+          },
         },
         currentActiveGame: 0,
         currentActiveRound: 1,
@@ -203,7 +218,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("korakPoKorakInitialStart", ({ matchId }) => {
-    getRandomItem()
+    getRandomItemForKorakPoKorak()
       .then((randomItem) => {
         const savedRandomItem = { ...randomItem };
         io.to(matchId).emit("korakPoKorakValues", randomItem);
@@ -245,9 +260,67 @@ io.on("connection", (socket) => {
         console.error("Error:", error);
       });
   });
+
+  socket.on("koZnaZnaInitialStart", ({ matchId }) => {
+    getItemsForKoZnaZna()
+      .then((data) => {
+        io.to(matchId).emit("koZnaZnaQuestions", { data });
+        socket
+          .on("koZnaZnaAnswer", ({ matchId, player, time, isCorrect }) => {
+            const match = activeMatches[matchId];
+            const player1Results = match.koZnaZnaResults.player1;
+            const player2Results = match.koZnaZnaResults.player2;
+
+            const isPlayer1 = player === match.player1.id;
+
+            const currentPlayerResults = isPlayer1
+              ? player1Results
+              : player2Results;
+
+            currentPlayerResults.time = time;
+            currentPlayerResults.isCorrect = isCorrect;
+
+            if (player1Results.time !== null && player2Results.time !== null) {
+              const bothCorrect =
+                player1Results.isCorrect && player2Results.isCorrect;
+              const player1Faster = player1Results.time < player2Results.time;
+
+              if (bothCorrect) {
+                if (player1Faster) {
+                  match.player1Points += 10;
+                } else {
+                  match.player2Points += 10;
+                }
+              } else {
+                match[isPlayer1 ? "player1Points" : "player2Points"] += 10;
+                match[isPlayer1 ? "player2Points" : "player1Points"] -= 5;
+              }
+
+              // Clear the time and correctness for both players after evaluating the answers.
+              player1Results.time = null;
+              player1Results.isCorrect = false;
+              player2Results.time = null;
+              player2Results.isCorrect = false;
+
+              activeMatches[matchId] = match;
+              console.log({ ...match });
+              io.to(matchId).emit("koZnaZnaMatchUpdate", { ...match });
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
 });
 
 const PORT = 3000;
 httpServer.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+
+// xiami je y
+// samsung je q

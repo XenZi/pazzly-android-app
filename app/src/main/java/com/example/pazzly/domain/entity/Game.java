@@ -4,13 +4,13 @@ public abstract class Game {
     int rounds;
     int maxPointsPerRound;
     int minimalPointsPerRound;
-    int durationPerRound;
+    double durationPerRound;
     int currentRound;
 
     public Game() {
     }
 
-    public Game(int rounds, int maxPointsPerRound, int minimalPointsPerRound, int durationPerRound, int currentRound) {
+    public Game(int rounds, int maxPointsPerRound, int minimalPointsPerRound, double durationPerRound, int currentRound) {
         this.rounds = rounds;
         this.maxPointsPerRound = maxPointsPerRound;
         this.minimalPointsPerRound = minimalPointsPerRound;
@@ -42,11 +42,11 @@ public abstract class Game {
         this.minimalPointsPerRound = minimalPointsPerRound;
     }
 
-    public int getDurationPerRound() {
+    public double getDurationPerRound() {
         return durationPerRound;
     }
 
-    public void setDurationPerRound(int durationPerRound) {
+    public void setDurationPerRound(double durationPerRound) {
         this.durationPerRound = durationPerRound;
     }
 

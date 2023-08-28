@@ -7,7 +7,7 @@
     >
 
     <TextView
-        android:id="@+id/textView17"
+        android:id="@+id/questionText"
         android:layout_width="380dp"
         android:layout_height="100dp"
         android:layout_marginStart="15dp"
@@ -23,7 +23,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/btnOption1"
         android:layout_width="150dp"
         android:layout_height="50dp"
         android:layout_marginStart="15dp"
@@ -32,10 +32,10 @@
         android:textColor="#fff"
         android:text="Option 1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView17" />
+        app:layout_constraintTop_toBottomOf="@+id/questionText" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/btnOption2"
         android:layout_width="150dp"
         android:layout_height="50dp"
         android:layout_marginTop="81dp"
@@ -44,10 +44,10 @@
         android:background="#72BBD3"
         android:textColor="#fff"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView17" />
+        app:layout_constraintTop_toBottomOf="@+id/questionText" />
 
     <Button
-        android:id="@+id/button5"
+        android:id="@+id/btnOption3"
         android:layout_width="150dp"
         android:layout_height="50dp"
         android:background="#72BBD3"
@@ -56,10 +56,10 @@
         android:layout_marginTop="10dp"
         android:text="Option 3"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button3" />
+        app:layout_constraintTop_toBottomOf="@+id/btnOption1" />
 
     <Button
-        android:id="@+id/button6"
+        android:id="@+id/btnOption4"
         android:layout_width="150dp"
         android:layout_height="50dp"
         android:layout_marginTop="10dp"
@@ -68,5 +68,5 @@
         android:layout_marginEnd="15dp"
         android:text="Option 4"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button4" />
+        app:layout_constraintTop_toBottomOf="@+id/btnOption2" />
 </androidx.constraintlayout.widget.ConstraintLayout>

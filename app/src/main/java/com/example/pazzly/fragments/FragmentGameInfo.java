@@ -17,7 +17,7 @@ import com.example.pazzly.domain.entity.Match;
 
 public class FragmentGameInfo extends Fragment {
 
-    private int gameDuration;
+    private double gameDuration;
     private View view;
     private TimerCallback timerCallback;
     private TextView secondsLeftTextView;
@@ -40,7 +40,7 @@ public class FragmentGameInfo extends Fragment {
     }
 
 
-    public static FragmentGameInfo newInstance(int gameDuration, Match match) {
+    public static FragmentGameInfo newInstance(double gameDuration, Match match) {
         FragmentGameInfo fragment = new FragmentGameInfo();
         fragment.gameDuration = gameDuration;
         fragment.match = match;
@@ -72,8 +72,8 @@ public class FragmentGameInfo extends Fragment {
         timerCallback = callback;
     }
 
-    private void startTimer(int duration) {
-        long millisecondsDuration = duration * 60 * 1000; // Convert minutes to milliseconds
+    private void startTimer(double duration) {
+        long millisecondsDuration = (long) (duration * 60 * 1000); // Convert minutes to milliseconds
 
         if (getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
@@ -119,11 +119,11 @@ public class FragmentGameInfo extends Fragment {
         });
     }
 
-    public int getGameDuration() {
+    public double getGameDuration() {
         return gameDuration;
     }
 
-    public void setGameDuration(int gameDuration) {
+    public void setGameDuration(double gameDuration) {
         this.gameDuration = gameDuration;
         startTimer(gameDuration);
     }
