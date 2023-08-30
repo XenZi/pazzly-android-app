@@ -6,11 +6,12 @@ public abstract class Game {
     int minimalPointsPerRound;
     double durationPerRound;
     int currentRound;
-
+    String gameName;
     public Game() {
     }
 
-    public Game(int rounds, int maxPointsPerRound, int minimalPointsPerRound, double durationPerRound, int currentRound) {
+    public Game(String gameName, int rounds, int maxPointsPerRound, int minimalPointsPerRound, double durationPerRound, int currentRound) {
+        this.gameName = gameName;
         this.rounds = rounds;
         this.maxPointsPerRound = maxPointsPerRound;
         this.minimalPointsPerRound = minimalPointsPerRound;
@@ -56,5 +57,13 @@ public abstract class Game {
 
     public void setCurrentRound(int currentRound) {
         this.currentRound = currentRound;
+    }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
     }
 }

@@ -82,10 +82,23 @@ public class FragmentKoZnaZna extends Fragment {
     }
 
     private void changeQuestionAndUpdateUI() {
+//        currentRound = (currentRound + 1) % koZnaZnaQuestions.size();
+//        initializeQuestionIntoView();
+//        initializeOptionsFromList();
+//        startQuestionChanging();
         currentRound = (currentRound + 1) % koZnaZnaQuestions.size();
         initializeQuestionIntoView();
         initializeOptionsFromList();
-        startQuestionChanging();
+
+        if (currentRound == 0) {
+            // All rounds completed, call the submission callback method
+            callbackKoZnaZna.onSubmissionKoZnaZna();
+        }
+
+        // If not the last round, start the timer again
+        if (currentRound < koZnaZnaQuestions.size() - 1) {
+            startQuestionChanging();
+        }
     }
 
     private void initializeViews() {

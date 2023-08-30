@@ -5,8 +5,8 @@ public class Spojnice extends Game{
     public Spojnice(){
 
     }
-    public Spojnice(int rounds, int maxPointsPerRound, int minimalPointsPerRound, int durationPerRound) {
-        super(rounds, maxPointsPerRound, minimalPointsPerRound, durationPerRound,1);
+    public Spojnice(String gameName, int rounds, int maxPointsPerRound, int minimalPointsPerRound, int durationPerRound) {
+        super(gameName, rounds, maxPointsPerRound, minimalPointsPerRound, durationPerRound,1);
     }
 
 

@@ -23,6 +23,7 @@ public class HomeScreenActivity extends Activity {
     public static User loggedUser;
     private TextView tokenHomeText;
     private Button startGameBtnHome;
+    private TextView starsHomeText;
     @Override
     protected void onCreate(@Nullable Bundle savedInstance) {
         super.onCreate(savedInstance);
@@ -30,6 +31,7 @@ public class HomeScreenActivity extends Activity {
         setContentView(R.layout.home_screen);
         initializeView();
         this.tokenHomeText.setText("Tokens: " + loggedUser.getTokens());
+        this.starsHomeText.setText("Stars: " + loggedUser.getStars());
         Button button = findViewById(R.id.profileBtn);
         button.setOnClickListener(v -> {startActivity(new Intent(HomeScreenActivity.this, ProfileActivity.class));});
         makeQueueForGameJoin();
@@ -37,6 +39,7 @@ public class HomeScreenActivity extends Activity {
 
     private void initializeView() {
         this.tokenHomeText = findViewById(R.id.tokenHomeText);
+        this.starsHomeText = findViewById(R.id.stars);
         this.startGameBtnHome = findViewById(R.id.startGameBtnHome);
     }
 

@@ -5,7 +5,7 @@ public class KorakPoKorak extends Game{
     public KorakPoKorak() {
     }
 
-    public KorakPoKorak(int rounds, int maxPointsPerRound, int minimalPointsPerRound, double durationPerRound) {
-        super(rounds, maxPointsPerRound, minimalPointsPerRound, durationPerRound, 1);
+    public KorakPoKorak(String gameName, int rounds, int maxPointsPerRound, int minimalPointsPerRound, double durationPerRound) {
+        super(gameName, rounds, maxPointsPerRound, minimalPointsPerRound, durationPerRound, 1);
     }
 }

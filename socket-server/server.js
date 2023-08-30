@@ -94,8 +94,6 @@ const activeMatches = {}; // Čuva informacije o aktivnim mečevima i rezultatim
 io.on("connection", (socket) => {
   socket.on("joinQueue", (data) => {
     waitingPlayers.push({ socket, ...data });
-    console.log("Player joined queue:", socket.id);
-    console.log("Player with following data: ", { ...data });
 
     if (waitingPlayers.length >= 2) {
       const player1 = waitingPlayers.shift();
@@ -198,10 +196,7 @@ io.on("connection", (socket) => {
             activeMatches[matchId].player2Points +
             finalResults.calculatedPoints.points;
         }
-        console.log({
-          ...finalResults,
-          ...activeMatches[matchId],
-        });
+
         io.to(matchId).emit("gameFinished", {
           ...finalResults,
           ...activeMatches[matchId],
@@ -249,7 +244,6 @@ io.on("connection", (socket) => {
                 activeMatches[matchId].player2Points +
                 calculatePointsForKorakPoKorak(step);
             }
-            console.log({ ...activeMatches[matchId] });
             io.to(matchId).emit("endGameKorakPoKorak", {
               ...activeMatches[matchId],
             });
@@ -262,58 +256,49 @@ io.on("connection", (socket) => {
   });
 
   socket.on("koZnaZnaInitialStart", ({ matchId }) => {
-    getItemsForKoZnaZna()
-      .then((data) => {
-        io.to(matchId).emit("koZnaZnaQuestions", { data });
-        socket
-          .on("koZnaZnaAnswer", ({ matchId, player, time, isCorrect }) => {
-            const match = activeMatches[matchId];
-            const player1Results = match.koZnaZnaResults.player1;
-            const player2Results = match.koZnaZnaResults.player2;
+    getItemsForKoZnaZna().then((data) => {
+      io.to(matchId).emit("koZnaZnaQuestions", { data });
+      socket.on("koZnaZnaAnswer", ({ matchId, player, time, isCorrect }) => {
+        const match = activeMatches[matchId];
+        const player1Results = match.koZnaZnaResults.player1;
+        const player2Results = match.koZnaZnaResults.player2;
 
-            const isPlayer1 = player === match.player1.id;
+        const isPlayer1 = player === match.player1.id;
 
-            const currentPlayerResults = isPlayer1
-              ? player1Results
-              : player2Results;
+        const currentPlayerResults = isPlayer1
+          ? player1Results
+          : player2Results;
 
-            currentPlayerResults.time = time;
-            currentPlayerResults.isCorrect = isCorrect;
+        currentPlayerResults.time = time;
+        currentPlayerResults.isCorrect = isCorrect;
 
-            if (player1Results.time !== null && player2Results.time !== null) {
-              const bothCorrect =
-                player1Results.isCorrect && player2Results.isCorrect;
-              const player1Faster = player1Results.time < player2Results.time;
+        if (player1Results.time !== null && player2Results.time !== null) {
+          const bothCorrect =
+            player1Results.isCorrect && player2Results.isCorrect;
+          const player1Faster = player1Results.time < player2Results.time;
 
-              if (bothCorrect) {
-                if (player1Faster) {
-                  match.player1Points += 10;
-                } else {
-                  match.player2Points += 10;
-                }
-              } else {
-                match[isPlayer1 ? "player1Points" : "player2Points"] += 10;
-                match[isPlayer1 ? "player2Points" : "player1Points"] -= 5;
-              }
-
-              // Clear the time and correctness for both players after evaluating the answers.
-              player1Results.time = null;
-              player1Results.isCorrect = false;
-              player2Results.time = null;
-              player2Results.isCorrect = false;
-
-              activeMatches[matchId] = match;
-              console.log({ ...match });
-              io.to(matchId).emit("koZnaZnaMatchUpdate", { ...match });
+          if (bothCorrect) {
+            if (player1Faster) {
+              match.player1Points += 10;
+            } else {
+              match.player2Points += 10;
             }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
+          } else {
+            match[isPlayer1 ? "player1Points" : "player2Points"] += 10;
+            match[isPlayer1 ? "player2Points" : "player1Points"] -= 5;
+          }
+
+          // Clear the time and correctness for both players after evaluating the answers.
+          player1Results.time = null;
+          player1Results.isCorrect = false;
+          player2Results.time = null;
+          player2Results.isCorrect = false;
+
+          activeMatches[matchId] = match;
+          io.to(matchId).emit("koZnaZnaMatchUpdate", { ...match });
+        }
       });
+    });
   });
 });
 

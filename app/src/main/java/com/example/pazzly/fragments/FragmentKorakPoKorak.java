@@ -166,12 +166,6 @@ public class FragmentKorakPoKorak extends Fragment {
             return;
         }
         initializeSubmitFinalAnswerSocketAction();
-//        if (submitCallback != null) {
-//            submitCallback.onSubmission(0);
-//        }
-//        if (callbackKorakPoKorak != null) {
-//            callbackKorakPoKorak.onSubmissionKorakPoKorak();
-//        }
     }
 
     private void freezeFragment() {
@@ -240,8 +234,6 @@ public class FragmentKorakPoKorak extends Fragment {
                     Log.d("ENDGAMEKORAKPOKORAK", "initializeEndGameSocket: ");
                     int player1Points = jsonObject.getInt("player1Points");
                     int player2Points = jsonObject.getInt("player2Points");
-                    String turn = jsonObject.getString("turn");
-                    this.match.setPlayerTurn(turn);
                     this.match.getPlayer1().setPoints(player1Points);
                     this.match.getPlayer2().setPoints(player2Points);
                     callbackKorakPoKorak.onSubmissionKorakPoKorak();

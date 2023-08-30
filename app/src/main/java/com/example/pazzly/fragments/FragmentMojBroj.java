@@ -54,7 +54,7 @@ public class FragmentMojBroj extends Fragment {
     private TextView currentStateOfExpression;
     private List<Button> numberButtons;
     private List<Button> operationButtons;
-    private SubmitCallback submitCallback;
+    private SubmitCallbackForMojBroj submitCallbackForMojBroj;
     private ConstraintLayout wholeFragment;
     private TextView resultFromUser1;
     private TextView resultFromUser2;
@@ -66,13 +66,16 @@ public class FragmentMojBroj extends Fragment {
         return fragmentMojBroj;
     }
 
-    public interface SubmitCallback {
-        void onSubmission(int points) throws JSONException;
+
+
+    public interface SubmitCallbackForMojBroj {
+        void onSubmissionMojBroj();
     }
 
-    public void setSubmitCallback(SubmitCallback callback) {
-        submitCallback = callback;
+    public void setSubmitCallbackForMojBroj(SubmitCallbackForMojBroj submitCallbackForMojBroj) {
+        this.submitCallbackForMojBroj = submitCallbackForMojBroj;
     }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_moj_broj, container, false);
@@ -364,23 +367,14 @@ public class FragmentMojBroj extends Fragment {
                 String player2Result = jsonObject.getString("player2Result");
                 resultFromUser1.setText(player1Result);
                 resultFromUser2.setText(player2Result);
-                JSONObject jsonObject1 = (JSONObject) jsonObject.get("calculatedPoints");
-                String points = jsonObject1.getString("points");
-                String pointsWinnerID = jsonObject1.getString("player");
-                String turn = jsonObject.getString("turn");
                 int player1Points = jsonObject.getInt("player1Points");
                 int player2Points = jsonObject.getInt("player2Points");
-                this.match.setPlayerTurn(turn);
                 this.match.getPlayer1().setPoints(player1Points);
                 this.match.getPlayer2().setPoints(player2Points);
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    try {
-                        submitCallback.onSubmission(0);
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
+                    submitCallbackForMojBroj.onSubmissionMojBroj();
                 }, 1500);
-            } catch (JSONException e) {
+             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
         });
