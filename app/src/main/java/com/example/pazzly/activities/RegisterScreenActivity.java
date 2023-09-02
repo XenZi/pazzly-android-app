@@ -71,6 +71,7 @@ public class RegisterScreenActivity extends Activity {
         user.setPassword(enteredPassword);
         user.setStars(0);
         user.setTokens(5);
+        user.setProfileImg("https://firebasestorage.googleapis.com/v0/b/project-pazzly-b47a8.appspot.com/o/profile_images%2Fpngwing.com.png?alt=media&token=6d574f43-8490-4ac0-bd1d-d5d1d7264a4a");
 
         dbUsers.add(user).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override

@@ -96,11 +96,11 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
                     fragmentToInitialize = FragmentKoZnaZna.newInstance(this.match);
                     ((FragmentKoZnaZna) fragmentToInitialize).setCallbackKoZnaZna(this);
                     break;
-                case 2:
+                case 1:
                     fragmentToInitialize = FragmentKorakPoKorak.newInstance(this.match);
                     ((FragmentKorakPoKorak) fragmentToInitialize).setCallbackKorakPoKorak(this);
                     break;
-                case 1:
+                case 2:
                     fragmentToInitialize = FragmentMojBroj.newInstance(this.match);
                     ((FragmentMojBroj) fragmentToInitialize).setSubmitCallbackForMojBroj(this);
                     break;
@@ -124,8 +124,8 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
         GameFragmentPair gameFragmentPairKorakPoKorak = new GameFragmentPair(korakPoKorak, fragmentKorakPoKorak);
 
         gameFragmentMap.put(0, gameFragmentPairKoZnaZna);
-        gameFragmentMap.put(2, gameFragmentPairKorakPoKorak);
-        gameFragmentMap.put(1, gameFragmentPairMojBroj);
+        gameFragmentMap.put(1, gameFragmentPairKorakPoKorak);
+        gameFragmentMap.put(2, gameFragmentPairMojBroj);
     }
 
     @Override
@@ -139,26 +139,40 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
 
     private void finishGame() {
         Game currentGame = gameFragmentMap.get(currentActiveGame).getGame();
-
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.downView);
-        Log.d("GAME NAME TR", "GAME NAME TR: " + currentGame.getGameName());
-        if (currentFragment != null) {
-            if (currentGame.getCurrentRound() < currentGame.getRounds()) {
-                Log.d("GAME NAME GDE JE RUNDA NOVA", "GAME NAME GDE JE RUNDA NOVA: " + currentGame.getGameName());
-                currentGame.setCurrentRound(currentGame.getCurrentRound() + 1);
-                this.match.setPlayerTurn(this.match.getPlayer2().getUUID());
-            } else {
-                Log.d("GAME NAME GDE JE RUNDA GOTOVA", "GAME NAME GDE JE RUNDA GOTOVA: " + currentGame.getGameName());
-                this.match.setPlayerTurn(this.match.getPlayer1().getUUID());
-                currentActiveGame++;
-            }
-            Log.d("CURRENT ACTIVE GAME NUMBER NA KRAJU", "finishGame: " + currentActiveGame);
-            initializeFragments();
-            gameFinished = false;
+        FragmentGameInfo fragmentGameInfo = (FragmentGameInfo) getSupportFragmentManager().findFragmentById(R.id.upView);
+
+        if (currentActiveGame == 3) {
+            fragmentGameInfo.stopTimer();
+            starsCount();
+            startActivity(new Intent(GameActivity.this, HomeScreenActivity.class));
+            finish();
+            return;
+        }
+
+        if (currentFragment == null) {
+            starsCount();
+            startActivity(new Intent(GameActivity.this, HomeScreenActivity.class));
+            return;
+        }
+        if (currentGame.getCurrentRound() < currentGame.getRounds()) {
+            // Continue to the next round of the current game
+            currentGame.setCurrentRound(currentGame.getCurrentRound() + 1);
+            this.match.setPlayerTurn(this.match.getPlayer2().getUUID());
+            Log.d("finishGame", "Moving to next round");
+        } else if (currentActiveGame < gameFragmentMap.size() - 1) {
+            // Move to the next game type
+            currentActiveGame++;
+            this.match.setPlayerTurn(this.match.getPlayer1().getUUID());
         } else {
+            // All games are finished, navigate to home screen
             starsCount();
             startActivity(new Intent(GameActivity.this, HomeScreenActivity.class));
         }
+        initializeFragments();
+        gameFinished = false;
+
+
     }
 
 
@@ -261,6 +275,10 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
             fragmentGameInfo.updatePoints();
             finishGame();
         }
+    }
+
+    private void formatForMatchStoreInTheFirebase() {
+
     }
 }
 

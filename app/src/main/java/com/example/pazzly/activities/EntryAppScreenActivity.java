@@ -29,6 +29,8 @@ import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -103,7 +105,8 @@ public class EntryAppScreenActivity extends Activity {
                         String email = documentSnapshot.getString("email");
                         Integer tokens = Integer.valueOf(Math.toIntExact(documentSnapshot.getLong("tokens")));
                         Integer stars = Integer.valueOf(Math.toIntExact(documentSnapshot.getLong("stars")));
-                        User user = new User(id, username, email, password, tokens, stars);
+                        String profileImg = documentSnapshot.getString("profileImg");
+                        User user = new User(id, username, email, password, profileImg, tokens, stars);
                         HomeScreenActivity.loggedUser = user;
                         startActivity(new Intent(EntryAppScreenActivity.this, HomeScreenActivity.class));
                     } else {

@@ -5,17 +5,19 @@ public class User {
     private String username;
     private String email;
     private String password;
+    private String profileImg;
     private int tokens;
     private int stars;
 
     public User() {
     }
 
-    public User(String id, String username, String email, String password, int tokens, int stars) {
+    public User(String id, String username, String email, String password, String profileImg, int tokens, int stars) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.profileImg = profileImg;
         this.tokens = tokens;
         this.stars = stars;
     }
@@ -66,5 +68,13 @@ public class User {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getProfileImg() {
+        return profileImg;
+    }
+
+    public void setProfileImg(String profileImg) {
+        this.profileImg = profileImg;
     }
 }
