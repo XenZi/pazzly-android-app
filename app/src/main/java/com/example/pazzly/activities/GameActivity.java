@@ -116,9 +116,9 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
         KoZnaZna koZnaZna = new KoZnaZna("Ko Zna Zna", 1, 50, -25, 0.06);
         FragmentKoZnaZna fragmentKoZnaZna = FragmentKoZnaZna.newInstance(this.match);
         GameFragmentPair gameFragmentPairKoZnaZna = new GameFragmentPair(koZnaZna, fragmentKoZnaZna);
-        MojBroj mojBroj = new MojBroj("Moj Broj", 2, 20, 0, 1);
+        MojBroj mojBroj = new MojBroj("Moj Broj", 2, 20, 0, 0.06);
         Fragment mojBrojFragment = FragmentMojBroj.newInstance(this.match);
-        KorakPoKorak korakPoKorak = new KorakPoKorak("Korak Po Korak", 2, 20, 0, 1);
+        KorakPoKorak korakPoKorak = new KorakPoKorak("Korak Po Korak", 2, 20, 0, 0.06);
         FragmentKorakPoKorak fragmentKorakPoKorak = FragmentKorakPoKorak.newInstance(this.match);
         GameFragmentPair gameFragmentPairMojBroj = new GameFragmentPair(mojBroj, mojBrojFragment);
         GameFragmentPair gameFragmentPairKorakPoKorak = new GameFragmentPair(korakPoKorak, fragmentKorakPoKorak);
@@ -145,11 +145,14 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
         if (currentActiveGame == 3) {
             fragmentGameInfo.stopTimer();
             starsCount();
-            startActivity(new Intent(GameActivity.this, HomeScreenActivity.class));
             finish();
+            startActivity(new Intent(GameActivity.this, HomeScreenActivity.class));
             return;
         }
 
+        Log.d("GAME_INFO", "name: " + currentGame.getGameName());
+        Log.d("GAME_INFO", "round: " + currentGame.getCurrentRound());
+        Log.d("GAME_INFO", "total rounds: " + currentGame.getRounds());
         if (currentFragment == null) {
             starsCount();
             startActivity(new Intent(GameActivity.this, HomeScreenActivity.class));
@@ -161,13 +164,14 @@ public class GameActivity extends AppCompatActivity implements FragmentGameInfo.
             this.match.setPlayerTurn(this.match.getPlayer2().getUUID());
             Log.d("finishGame", "Moving to next round");
         } else if (currentActiveGame < gameFragmentMap.size() - 1) {
-            // Move to the next game type
+            Log.d("GAME_NAME", "finishGame: " + currentGame.getGameName());
             currentActiveGame++;
             this.match.setPlayerTurn(this.match.getPlayer1().getUUID());
+            this.match.setActiveGame(this.gameFragmentMap.get(currentActiveGame).getGame());
         } else {
-            // All games are finished, navigate to home screen
             starsCount();
             startActivity(new Intent(GameActivity.this, HomeScreenActivity.class));
+            finish();
         }
         initializeFragments();
         gameFinished = false;

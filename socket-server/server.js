@@ -2,7 +2,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { v4 as uuidv4 } from "uuid";
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getFirestore, collection, getDocs, addDoc } from "firebase/firestore";
 
 const httpServer = createServer();
 const io = new Server(httpServer, {
@@ -91,6 +91,20 @@ const calculatePointsForMojBroj = (wantedNumber, firstResult, secondResult) => {
 
 const waitingPlayers = [];
 const activeMatches = {}; // Čuva informacije o aktivnim mečevima i rezultatima igrača
+
+const saveMatchHistoryInDatabase = async (matchId) => {
+  const constructedObject = {
+    player1: activeMatches[matchId].player1.id,
+    player2: activeMatches[matchId].player2.id,
+    player1Points: activeMatches[matchId].player1Points,
+    player2Points: activeMatches[matchId].player2Points,
+    ...activeMatches[matchId].gameDetailsResultPoints,
+  };
+  const matchesRef = collection(db, "matches"); // Reference to the "matches" collection
+  const newMatchRef = await addDoc(matchesRef, constructedObject); // Create a new document with the specified data
+  console.log("SAVED", newMatchRef);
+};
+
 io.on("connection", (socket) => {
   socket.on("joinQueue", (data) => {
     waitingPlayers.push({ socket, ...data });
@@ -124,6 +138,32 @@ io.on("connection", (socket) => {
         },
         currentActiveGame: 0,
         currentActiveRound: 1,
+        gameDetailsResultPoints: {
+          koZnaZna: {
+            player1: 0,
+            player2: 0,
+          },
+          korakPoKorak: [
+            {
+              player1: 0,
+              player2: 0,
+            },
+            {
+              player1: 0,
+              player2: 0,
+            },
+          ],
+          mojBroj: [
+            {
+              player1: 0,
+              player2: 0,
+            },
+            {
+              player1: 0,
+              player2: 0,
+            },
+          ],
+        },
       };
       activeMatches[matchId] = matchDetails;
       player1.socket.join(matchId);
@@ -145,26 +185,20 @@ io.on("connection", (socket) => {
   socket.on(
     "mojBrojResult",
     ({ matchId, playerId, result, wantedNumber, hasMoreRounds }) => {
-      console.log("Does it has more rounds? ", hasMoreRounds);
       if (!activeMatches[matchId]) {
         activeMatches[matchId] = { player1Result: null, player2Result: null };
       }
 
-      // Ako je ovo rezultat prvog igrača
       if (playerId === activeMatches[matchId].player1.id) {
         activeMatches[matchId].gameResults.player1Result = result;
-      }
-      // Ako je ovo rezultat drugog igrača
-      else if (playerId === activeMatches[matchId].player2.id) {
+      } else if (playerId === activeMatches[matchId].player2.id) {
         activeMatches[matchId].gameResults.player2Result = result;
       }
 
-      // Proveri da li su oba igrača poslala svoje rezultate
       if (
         activeMatches[matchId].gameResults.player1Result !== null &&
         activeMatches[matchId].gameResults.player2Result !== null
       ) {
-        // Emituj konačne rezultate igre
         let calculatedPoints = calculatePointsForMojBroj(
           wantedNumber,
           activeMatches[matchId].gameResults.player1Result,
@@ -191,19 +225,32 @@ io.on("connection", (socket) => {
           activeMatches[matchId].player1Points =
             activeMatches[matchId].player1Points +
             finalResults.calculatedPoints.points;
+
+          if (!hasMoreRounds) {
+            activeMatches[matchId].gameDetailsResultPoints.mojBroj[1].player1 =
+              finalResults.calculatedPoints.points;
+          } else {
+            activeMatches[matchId].gameDetailsResultPoints.mojBroj[0].player1 =
+              finalResults.calculatedPoints.points;
+          }
         } else {
           activeMatches[matchId].player2Points =
             activeMatches[matchId].player2Points +
             finalResults.calculatedPoints.points;
+          if (!hasMoreRounds) {
+            activeMatches[matchId].gameDetailsResultPoints.mojBroj[1].player2 =
+              finalResults.calculatedPoints.points;
+          } else {
+            activeMatches[matchId].gameDetailsResultPoints.mojBroj[0].player2 =
+              finalResults.calculatedPoints.points;
+          }
         }
-
+        saveMatchHistoryInDatabase(matchId);
+        console.log(activeMatches[matchId].gameDetailsResultPoints);
         io.to(matchId).emit("gameFinished", {
           ...finalResults,
           ...activeMatches[matchId],
         });
-
-        activeMatches[matchId].gameResults.player1Result = null;
-        activeMatches[matchId].gameResults.player2Result = null;
       }
     }
   );
@@ -230,20 +277,39 @@ io.on("connection", (socket) => {
         socket.on(
           "submitFinalAnswerForKorakPoKorakCorrect",
           ({ matchId, answer, playerTurnId, step, hasMoreRounds }) => {
-            if (hasMoreRounds) {
-              activeMatches[matchId].turn = activeMatches[matchId].player2.id;
-            } else {
-              activeMatches[matchId].turn = activeMatches[matchId].player1.id;
-            }
+            console.log("DOES IT HAS MORE ROUNDS???", hasMoreRounds);
             if (playerTurnId == activeMatches[matchId].player1.id) {
               activeMatches[matchId].player1Points =
                 activeMatches[matchId].player1Points +
                 calculatePointsForKorakPoKorak(step);
+              if (!hasMoreRounds) {
+                activeMatches[
+                  matchId
+                ].gameDetailsResultPoints.korakPoKorak[1].player1 =
+                  calculatePointsForKorakPoKorak(step);
+              } else {
+                activeMatches[
+                  matchId
+                ].gameDetailsResultPoints.korakPoKorak[0].player1 =
+                  calculatePointsForKorakPoKorak(step);
+              }
             } else {
               activeMatches[matchId].player2Points =
                 activeMatches[matchId].player2Points +
                 calculatePointsForKorakPoKorak(step);
+              if (!hasMoreRounds) {
+                activeMatches[
+                  matchId
+                ].gameDetailsResultPoints.korakPoKorak[1].player2 =
+                  calculatePointsForKorakPoKorak(step);
+              } else {
+                activeMatches[
+                  matchId
+                ].gameDetailsResultPoints.korakPoKorak[0].player2 =
+                  calculatePointsForKorakPoKorak(step);
+              }
             }
+
             io.to(matchId).emit("endGameKorakPoKorak", {
               ...activeMatches[matchId],
             });
@@ -284,18 +350,28 @@ io.on("connection", (socket) => {
               match.player2Points += 10;
             }
           } else {
-            match[isPlayer1 ? "player1Points" : "player2Points"] += 10;
-            match[isPlayer1 ? "player2Points" : "player1Points"] -= 5;
+            if (player1Results.isCorrect) {
+              match.player1Points += 10;
+              match.player2Points -= 5;
+            } else if (player2Results.isCorrect) {
+              match.player2Points += 10;
+              match.player1Points -= 5;
+            } else {
+              match.player1Points -= 5;
+              match.player2Points -= 5;
+            }
           }
+          io.to(matchId).emit("koZnaZnaMatchUpdate", { ...match });
 
-          // Clear the time and correctness for both players after evaluating the answers.
+          match.gameDetailsResultPoints.koZnaZna.player1 = match.player1Points;
+          match.gameDetailsResultPoints.koZnaZna.player2 = match.player2Points;
+
           player1Results.time = null;
           player1Results.isCorrect = false;
           player2Results.time = null;
           player2Results.isCorrect = false;
 
           activeMatches[matchId] = match;
-          io.to(matchId).emit("koZnaZnaMatchUpdate", { ...match });
         }
       });
     });

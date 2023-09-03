@@ -21,7 +21,7 @@ public class SocketIOManager {
 
     public void connect() {
         try {
-            socket = IO.socket("http://192.168.0.27:3000");
+            socket = IO.socket("http://192.168.0.12:3000");
             socket.connect();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);

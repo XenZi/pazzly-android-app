@@ -363,6 +363,7 @@ public class FragmentMojBroj extends Fragment {
         SocketIOManager.getInstance().getSocket().on("gameFinished", args -> {
             JSONObject jsonObject = (JSONObject) args[0];
             try {
+                Log.d("MOJ_BROJ_END", "gameResultDone: ");
                 String player1Result = jsonObject.getString("player1Result");
                 String player2Result = jsonObject.getString("player2Result");
                 resultFromUser1.setText(player1Result);
